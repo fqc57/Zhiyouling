@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智游灵 - 空间感知RAG文化旅行规划</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            background-color: #f5f5f5;
+            height: 100%;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e88e5 0%, #005cb2 100%);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-btn i {
+            margin-right: 5px;
+        }
+        
+        .card {
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .route-day {
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #1e88e5;
+            padding-left: 1rem;
+        }
+        
+        .poi-item {
+            border-bottom: 1px dashed #dee2e6;
+            padding: 0.75rem 0;
+        }
+        
+        .poi-item:last-child {
+            border-bottom: none;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: #e3f2fd;
+            color: #0d47a1;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tag-activity {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+        
+        .description {
+            font-size: 0.95rem;
+            color: #546e7a;
+            margin-top: 0.5rem;
+        }
+        
+        .cultural-description {
+            font-size: 0.95rem;
+            color: #455a64;
+            padding: 0.9rem;
+            background-color: #f5f5f5;
+            border-left: 3px solid #1e88e5;
+            margin-top: 1rem;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        #theme-selector {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .map-container {
+            height: 400px;
+            margin-top: 1.5rem;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #455a64;
+        }
+        
+        .form-select, .form-control {
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .btn-primary {
+            background-color: #1e88e5;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1976d2;
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.3);
+        }
+        
+        /* RAG流程可视化样式 */
+        .rag-flow-container {
+            background-color: white;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .rag-flow-title {
+            background-color: #f0f7ff;
+            padding: 1rem;
+            border-bottom: 1px solid #e1ecf9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .flow-steps {
+            padding: 0;
+        }
+        
+        .flow-step {
+            padding: 1rem;
+            border-left: 3px solid transparent;
+            position: relative;
+            margin-bottom: 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+        
+        .flow-step.active {
+            background-color: #f8f9fa;
+            border-left-color: #1e88e5;
+        }
+        
+        .flow-step.completed {
+            border-left-color: #4caf50;
+        }
+        
+        .flow-step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background-color: #e9ecef;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+        
+        .step-icon.active {
+            background-color: #1e88e5;
+            color: white;
+        }
+        
+        .step-icon.completed {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .step-details {
+            background-color: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .step-progress {
+            height: 6px;
+            margin-top: 0.5rem;
+            border-radius: 3px;
+            overflow: hidden;
+            background-color: #e9ecef;
+        }
+        
+        .step-progress-bar {
+            height: 100%;
+            background-color: #1e88e5;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .flow-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            background-color: #f1f1f1;
+            color: #666;
+        }
+        
+        .badge-time {
+            background-color: #e0f7fa;
+            color: #00838f;
+        }
+        
+        .badge-active {
+            background-color: #e1f5fe;
+            color: #0288d1;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .badge-completed {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .badge-waiting {
+            background-color: #f5f5f5;
+            color: #9e9e9e;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        #keywords-cloud {
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <a href="/" class="back-btn">
+                <i class="bi bi-arrow-left"></i> 返回首页
+            </a>
+            <h1><i class="bi bi-geo-alt-fill"></i> 智游灵</h1>
+            <p class="lead mb-0">基于空间感知与多源数据的个性化文化旅行规划系统</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-md-4">
+                <div id="theme-selector">
+                    <h4 class="mb-4">个性化旅行定制</h4>
+                    <form id="route-form">
+                        <div class="mb-3">
+                            <label for="theme" class="form-label">文化主题</label>
+                            <select class="form-select" id="theme" name="theme">
+                                <option value="茶文化">茶文化之旅</option>
+                                <option value="历史">历史文化探索</option>
+                                <option value="爱情">爱情传说寻踪</option>
+                                <option value="佛教">佛教文化体验</option>
+                                <option value="徽商">徽商文化研究</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="days" class="form-label">游玩天数</label>
+                            <select class="form-select" id="days" name="days">
+                                <option value="1">1天</option>
+                                <option value="2">2天</option>
+                                <option value="3">3天</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="energy" class="form-label">体力值</label>
+                            <select class="form-select" id="energy" name="energy">
+                                <option value="高">暴走模式（高）</option>
+                                <option value="中等" selected>适中（中等）</option>
+                                <option value="低">悠闲散步（低）</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-magic"></i> 生成文化旅行路线
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <h5><i class="bi bi-tag-fill"></i> 热门景点关键词</h5>
+                    <div id="keywords-cloud" class="mt-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <!-- 空间感知RAG流程可视化区域 -->
+                <div id="rag-flow-visualization" class="rag-flow-container mb-4">
+                    <div class="rag-flow-title">
+                        <div>
+                            <h5 class="mb-0"><i class="bi bi-diagram-3"></i> 空间感知RAG执行流程</h5>
+                            <p class="text-muted mb-0"><small>空间信息与文化语义的融合过程可视化</small></p>
+                        </div>
+                        <span class="badge rounded-pill bg-info" id="rag-status">等待输入</span>
+                    </div>
+                    <div class="flow-steps" id="rag-flow-steps">
+                        <!-- 这里将显示RAG流程步骤 -->
+                    </div>
+                </div>
+                
+                <div id="loading" class="text-center d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">正在生成个性化文化旅行路线...</p>
+                </div>
+                
+                <div id="route-results" class="d-none">
+                    <div class="alert alert-success" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill me-2" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h4 class="alert-heading m-0" id="route-theme-title">茶文化之旅</h4>
+                                <p class="mb-0" id="route-summary">根据您的喜好，我们为您精心设计了以下行程。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="routes-container"></div>
+                    
+                    <div class="map-container">
+                        <iframe id="route-map" width="100%" height="100%" frameborder="0"></iframe>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button id="export-pdf" class="btn btn-outline-primary">
+                            <i class="bi bi-file-earmark-pdf"></i> 导出行程单PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // RAG流程步骤定义
+        const ragSteps = [
+            {
+                id: 'user-input',
+                title: '用户输入与空间感知',
+                icon: '🔍',
+                description: '接收用户需求并初始化空间感知模块',
+                color: '#4285F4',
+                duration: 1000
+            },
+            {
+                id: 'spatial-retrieval',
+                title: '空间数据检索',
+                icon: '📍',
+                description: '检索与主题相关的地理空间POI数据',
+                color: '#34A853',
+                duration: 2000
+            },
+            {
+                id: 'cultural-semantic',
+                title: '文化语义检索',
+                icon: '🏮',
+                description: '获取POI关联的文化标签和用户评论',
+                color: '#FBBC05',
+                duration: 2000
+            },
+            {
+                id: 'multimodal-fusion',
+                title: '多模态融合排序',
+                icon: '⚖️',
+                description: '融合地理位置与文化相关性',
+                color: '#EA4335',
+                duration: 1500
+            },
+            {
+                id: 'llm-enhancement',
+                title: '大模型增强生成',
+                icon: '🧠',
+                description: '调用大语言模型生成文化解说',
+                color: '#8E44AD',
+                duration: 3000
+            },
+            {
+                id: 'route-planning',
+                title: '路线规划与可视化',
+                icon: '🗺️',
+                description: '根据时空约束生成最优路线',
+                color: '#16A085',
+                duration: 2000
+            }
+        ];
+
+        // 初始化RAG流程视图
+        function initRagFlow() {
+            let flowHtml = '';
+            
+            ragSteps.forEach((step, index) => {
+                // 为每个步骤创建HTML
+                flowHtml += `
+                    <div id="${step.id}" class="flow-step d-flex">
+                        <div class="step-icon me-3" style="background-color: #e9ecef;">
+                            ${step.icon}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">${step.title}</h6>
+                                <span class="flow-badge badge-waiting" id="${step.id}-status">等待中</span>
+                            </div>
+                            <p class="text-muted mb-1 small">${step.description}</p>
+                            <div class="step-details d-none" id="${step.id}-details"></div>
+                            <div class="step-progress">
+                                <div class="step-progress-bar" id="${step.id}-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // 将HTML添加到容器
+            $('#rag-flow-steps').html(flowHtml);
+            $('#rag-status').text('等待用户输入');
+        }
+
+        // 运行RAG流程模拟
+        function runRagFlow(theme, days, energy) {
+            $('#rag-status').removeClass('bg-info').addClass('bg-primary').text('执行中');
+            
+            // 模拟步骤1：用户输入与空间感知
+            updateStepStatus('user-input', 'active', `正在处理用户输入: ${theme}主题，${days}天行程，${energy}强度`);
+            simulateProgress('user-input', ragSteps[0].duration, function() {
+                updateStepStatus('user-input', 'completed', `成功接收用户输入: ${theme}主题，${days}天行程，${energy}强度`);
+                
+                // 模拟步骤2：空间数据检索
+                updateStepStatus('spatial-retrieval', 'active', `正在从数据库中检索与"${theme}"相关的POI点...`);
+                simulateProgress('spatial-retrieval', ragSteps[1].duration, function() {
+                    updateStepStatus('spatial-retrieval', 'completed', `成功检索到12个与"${theme}"相关的POI点`);
+                    
+                    // 模拟步骤3：文化语义检索
+                    updateStepStatus('cultural-semantic', 'active', `提取文化标签和评论中的语义特征...`);
+                    simulateProgress('cultural-semantic', ragSteps[2].duration, function() {
+                        updateStepStatus('cultural-semantic', 'completed', `共提取25个文化标签和18条评论特征`);
+                        
+                        // 模拟步骤4：多模态融合排序
+                        updateStepStatus('multimodal-fusion', 'active', `使用空间感知加权算法排序POI...`);
+                        simulateProgress('multimodal-fusion', ragSteps[3].duration, function() {
+                            updateStepStatus('multimodal-fusion', 'completed', `完成空间与语义融合，选出最佳POI组合`);
+                            
+                            // 模拟步骤5：大模型增强生成
+                            updateStepStatus('llm-enhancement', 'active', `正在调用大模型生成文化解说...`);
+                            simulateProgress('llm-enhancement', ragSteps[4].duration, function() {
+                                updateStepStatus('llm-enhancement', 'completed', `成功生成8个景点的文化解说，共1,450个Token`);
+                                
+                                // 模拟步骤6：路线规划与可视化
+                                updateStepStatus('route-planning', 'active', `综合考虑时间、距离和体力生成路线...`);
+                                simulateProgress('route-planning', ragSteps[5].duration, function() {
+                                    updateStepStatus('route-planning', 'completed', `规划完成，总游览时间: ${days * 6}小时，共${days + 3}个景点`);
+                                    $('#rag-status').removeClass('bg-primary').addClass('bg-success').text('执行完成');
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        }
+
+        // 更新步骤状态
+        function updateStepStatus(stepId, status, detailsText) {
+            const $step = $(`#${stepId}`);
+            const $icon = $step.find('.step-icon');
+            const $status = $(`#${stepId}-status`);
+            const $details = $(`#${stepId}-details`);
+            
+            // 更新步骤状态
+            if (status === 'active') {
+                $step.addClass('active');
+                $icon.addClass('active').css('background-color', ragSteps.find(s => s.id === stepId).color);
+                $status.removeClass('badge-waiting badge-completed').addClass('badge-active').text('执行中');
+                if (detailsText) {
+                    $details.text(detailsText).removeClass('d-none');
+                }
+            } else if (status === 'completed') {
+                $step.removeClass('active').addClass('completed');
+                $icon.removeClass('active').addClass('completed').css('background-color', '#4caf50');
+                $status.removeClass('badge-active badge-waiting').addClass('badge-completed').text('已完成');
+                if (detailsText) {
+                    $details.text(detailsText);
+                    $(`#${stepId}-progress`).css('width', '100%');
+                }
+            }
+        }
+
+        // 模拟进度条
+        function simulateProgress(stepId, duration, callback) {
+            const $progress = $(`#${stepId}-progress`);
+            const startTime = Date.now();
+            const interval = 50; // 更新间隔（毫秒）
+            
+            function updateProgress() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration * 100, 100);
+                
+                $progress.css('width', `${progress}%`);
+                
+                if (progress < 100) {
+                    setTimeout(updateProgress, interval);
+                } else {
+                    if (callback) callback();
+                }
+            }
+            
+            updateProgress();
+        }
+
+        $(document).ready(function() {
+            // 初始化RAG流程视图
+            initRagFlow();
+            
+            // 加载关键词分析
+            $.get('/api/analyze_comments', function(data) {
+                let keywordsHtml = '';
+                data.keywords.forEach(function(item) {
+                    const fontSize = 0.8 + (item.count / 5) * 0.3; // 根据频率调整字体大小
+                    keywordsHtml += `<span class="tag" style="font-size: ${fontSize}rem;">${item.keyword}</span>`;
+                });
+                $('#keywords-cloud').html(keywordsHtml);
+            });
+            
+            // 表单提交
+            $('#route-form').submit(function(e) {
+    e.preventDefault();
+    
+    // Show loading state
+    $('#loading').removeClass('d-none');
+    $('#route-results').addClass('d-none');
+    
+    // Get form data
+    const theme = $('#theme').val();
+    const days = $('#days').val();
+    const energy = $('#energy').val();
+    
+    // Run RAG flow simulation
+    runRagFlow(theme, days, energy);
+    
+    // Send request
+    $.ajax({
+        url: '/api/routes',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            theme: theme,
+            days: parseInt(days),
+            energy: energy
+        }),
+        success: function(data) {
+            // Log the received data for debugging
+            console.log("Received route data:", data);
+            
+            // Check if we have routes data
+            if (!data.routes || data.routes.length === 0) {
+                alert('未能生成有效的路线，请尝试不同的参数！');
+                $('#loading').addClass('d-none');
+                return;
+            }
+            
+            // Update route results
+            $('#route-theme-title').text(data.theme + '之旅');
+            $('#route-summary').text(`为您定制的${data.days}天${data.energy}强度文化体验之旅。`);
+            
+            // Render routes
+            renderRoutes(data.routes);
+            
+            // Generate map after routes are rendered
+            setTimeout(function() {
+                generateMap(data.routes);
+            }, 500);
+            
+            // Hide loading state, show results
+            $('#loading').addClass('d-none');
+            $('#route-results').removeClass('d-none');
+        },
+        error: function(xhr, status, error) {
+            console.error("Route generation failed:", error);
+            alert('生成路线失败，请重试！错误: ' + error);
+            $('#loading').addClass('d-none');
+        }
+    });
+});           
+            // 渲染路线函数
+            function renderRoutes(routes) {
+                let routesHtml = '';
+                
+                routes.forEach(function(dayRoute, dayIndex) {
+                    routesHtml += `
+                        <div class="route-day">
+                            <h4>第${dayIndex + 1}天行程</h4>
+                            <div class="card">
+                                <div class="card-body">
+                    `;
+                    
+                    dayRoute.forEach(function(poi, poiIndex) {
+                        routesHtml += `
+                            <div class="poi-item">
+                                <h5>${poiIndex + 1}. ${poi.name}</h5>
+                                <div>
+                                    <span class="tag tag-activity">游览约${poi.visit_time}分钟</span>
+                                    ${poi.ticket_price > 0 ? `<span class="tag">门票¥${poi.ticket_price}</span>` : '<span class="tag">免费</span>'}
+                                    <span class="tag">评分${poi.rating}★</span>
+                                </div>
+                                <div class="description">${poi.description}</div>
+                                <div class="cultural-description">${poi.cultural_description}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    routesHtml += `
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                $('#routes-container').html(routesHtml);
+            }
+            
+            // 生成地图函数
+            function generateMap(routes) {
+    // Debug log to check what routes we're sending
+    console.log("Sending routes data:", routes);
+    
+    // Only proceed if routes array is not empty
+    if (routes && routes.length > 0) {
+        $.ajax({
+            url: '/api/map',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ routes: routes }),
+            success: function(data) {
+                if (data.error) {
+                    console.error("Map generation error:", data.error);
+                    alert("无法生成地图: " + data.error);
+                } else {
+                    $('#route-map').attr('src', data.map_url);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Map request failed:", error);
+                alert("地图请求失败: " + error);
+            }
+        });
+    } else {
+        console.error("Cannot generate map: routes data is empty");
+        $('#route-map').attr('src', '');
+        // Optionally show a placeholder or error message
+        // $('#route-map').parent().html('<div class="alert alert-warning">无法生成地图：没有路线数据</div>');
+    }
+}
+            
+            // 导出PDF（示例功能）
+            $('#export-pdf').click(function() {
+                alert('导出PDF功能将在完整版中实现！');
+            });
+        });
+    </script>
+</body>
+</html>

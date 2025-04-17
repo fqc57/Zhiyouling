@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智游灵 - 空间感知文化旅行规划系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.8.2/dist/d3.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1e88e5;
+            --primary-light: #6ab7ff;
+            --primary-dark: #005cb2;
+            --accent-color: #ff5722;
+            --text-dark: #263238;
+            --text-light: #eceff1;
+            --background-dark: #102027;
+            --background-light: #f5f5f5;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            height: 100%;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            margin: 0 0.2rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255,255,255,0.15);
+            color: white !important;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('static/images/hangzhou.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-top: 1rem;
+        }
+
+        .feature-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        }
+
+        .feature-card .card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-card .icon {
+            background-color: var(--primary-light);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .feature-card .card-text {
+            color: #546e7a;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-footer {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            right: 1.5rem;
+        }
+
+        .demo-btn {
+            font-weight: 500;
+            border-radius: 30px;
+            padding: 0.5rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .demo-btn:hover {
+            background-color: var(--primary-dark);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .showcase-section {
+            padding: 5rem 0;
+            background-color: white;
+        }
+
+        .showcase-img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .showcase-content {
+            padding: 0 2rem;
+        }
+
+        .showcase-title {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+        }
+
+        .showcase-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 1.5rem;
+        }
+
+        .showcase-list li {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .showcase-list i {
+            color: var(--accent-color);
+            margin-right: 10px;
+            margin-top: 4px;
+        }
+
+        .demo-section {
+            padding: 5rem 0;
+            background-color: var(--background-light);
+        }
+
+        .demo-video {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .footer {
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            padding: 3rem 0;
+        }
+
+        .footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-title {
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            color: white;
+        }
+
+        .footer-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .footer-list li {
+            margin-bottom: 0.8rem;
+        }
+
+        .demo-frame {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* 动画效果 */
+        .fade-in {
+            animation: fadeIn ease 1s;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .slide-up {
+            animation: slideUp ease 1s;
+        }
+
+        @keyframes slideUp {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* 自定义导航标签样式 */
+        .custom-tabs {
+            display: flex;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 8px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(5px);
+            margin-bottom: 20px;
+        }
+        
+        .custom-tabs .nav-item {
+            margin: 0 4px;
+            z-index: 1;
+        }
+        
+        .custom-tabs .nav-link {
+            border: none !important;
+            border-radius: 50px !important;
+            padding: 10px 20px;
+            font-weight: 500;
+            color: var(--text-dark) !important;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            background: transparent;
+        }
+        
+        .custom-tabs .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50px;
+        }
+        
+        .custom-tabs .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-tabs .nav-link:hover::before {
+            opacity: 1;
+        }
+        
+        .custom-tabs .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white !important;
+            box-shadow: 0 8px 20px rgba(0, 118, 255, 0.3);
+            transform: translateY(-2px);
+            font-weight: 600;
+        }
+        
+        .custom-tabs .nav-link:not(.active) {
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .custom-tabs .nav-link i {
+            margin-right: 5px;
+            font-size: 1.1em;
+            vertical-align: -1px;
+        }
+        
+        .tab-content {
+            position: relative;
+        }
+        
+        .tab-pane {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .tab-pane.fade:not(.show) {
+            transform: translateY(10px);
+            opacity: 0;
+        }
+        
+        .tab-pane.fade.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 3rem 0;
+            }
+            
+            .showcase-content {
+                padding: 0;
+                margin-top: 2rem;
+            }
+            
+            .demo-frame {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="bi bi-geo-alt-fill"></i> 智游灵</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#home">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">核心功能</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#showcase">系统展示</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#demo">在线演示</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="hero-section" id="home">
+        <div class="hero-bg"></div>
+        <div class="container hero-content">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-3 slide-up">智游灵</h1>
+                    <p class="hero-subtitle slide-up">基于空间感知与多源数据的个性化文化旅行规划系统</p>
+                    <p class="lead slide-up">从"去哪里玩"到"体验什么文化"的深度转变</p>
+                    <div class="mt-5 fade-in">
+                        <a href="#demo" class="btn btn-light btn-lg me-3">立即体验</a>
+                        <a href="#features" class="btn btn-outline-light btn-lg">了解更多</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特色功能 -->
+    <section class="py-5" id="features">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">核心功能</h2>
+                <p class="text-muted">创新融合地理信息与文化语义，打造全新旅游体验</p>
+            </div>
+            <div class="row g-4">
+                <!-- 空间感知RAG功能 -->
+                <div class="col-md-3">
+                    <div class="feature-card" onclick="window.location.href='/rag'">
+                        <div class="card-title">
+                            <div class="icon"><i class="bi bi-geo-alt"></i></div>
+                            <span>空间感知RAG</span>
+                        </div>
+                        <p class="card-text">融合地理信息与文化语义，构建空间感知检索增强生成系统</p>
+                        <div class="feature-footer">
+                            <button class="demo-btn" onclick="window.location.href='/rag'">查看演示</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 杭州旅游知识图谱 -->
+                <div class="col-md-3">
+                    <div class="feature-card" onclick="window.location.href='/graph'">
+                        <div class="card-title">
+                            <div class="icon"><i class="bi bi-diagram-3"></i></div>
+                            <span>文化旅游知识图谱</span>
+                        </div>
+                        <p class="card-text">通过交互式图谱揭示景点的历史文化内涵和空间关联</p>
+                        <div class="feature-footer">
+                            <button class="demo-btn" onclick="window.location.href='/graph'">查看演示</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 深度思考旅游助手 -->
+                <div class="col-md-3">
+                    <div class="feature-card" onclick="window.location.href='/chat'">
+                        <div class="card-title">
+                            <div class="icon"><i class="bi bi-chat-dots"></i></div>
+                            <span>深度思考助手</span>
+                        </div>
+                        <p class="card-text">提供可见思维链的旅游规划服务，生成深度旅游方案</p>
+                        <div class="feature-footer">
+                            <button class="demo-btn" onclick="window.location.href='/chat'">查看演示</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 一体化体验（新增） -->
+                <div class="col-md-3">
+                    <div class="feature-card" onclick="window.location.href='/unified'" style="background-color: #f8f2ff; border: 2px solid #7b1fa2;">
+                        <div class="card-title">
+                            <div class="icon" style="background-color: #7b1fa2;"><i class="bi bi-layers"></i></div>
+                            <span>一体化体验</span>
+                        </div>
+                        <p class="card-text">用户只需通过对话即可启动完整的旅游规划，集成地图和知识图谱展示</p>
+                        <div class="feature-footer">
+                            <button class="demo-btn" style="background-color: #7b1fa2;" onclick="window.location.href='/unified'">立即体验</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 系统展示 -->
+    <section class="showcase-section" id="showcase">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">系统展示</h2>
+                <p class="text-muted">突破传统旅游推荐系统的局限，打造新一代文化旅游体验</p>
+            </div>
+            
+            <div class="row align-items-center mb-5">
+                <div class="col-md-6">
+                    <img src="static/images/rag-demo.jpg" alt="空间感知RAG演示" class="showcase-img">
+                </div>
+                <div class="col-md-6 showcase-content">
+                    <h3 class="showcase-title">空间感知RAG系统</h3>
+                    <p>突破传统推荐系统"只关注景点不关注文化"的局限，创新性融合地理空间信息与文化语义内容。</p>
+                    <ul class="showcase-list">
+                        <li><i class="bi bi-check-circle-fill"></i> <span>实时可视化多模态融合过程</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>个性化文化主题定制旅行路线</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>大模型增强生成文化深度解说</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>基于时空约束的智能路线规划</span></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="row align-items-center mb-5">
+                <div class="col-md-6 showcase-content order-md-1 order-2">
+                    <h3 class="showcase-title">文化旅游知识图谱</h3>
+                    <p>通过交互式知识图谱，直观展现旅游资源之间的关联关系，帮助用户深入了解旅游目的地的文化脉络。</p>
+                    <ul class="showcase-list">
+                        <li><i class="bi bi-check-circle-fill"></i> <span>景点间多维度关联可视化</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>文化标签聚类与关联分析</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>历史意义与文化价值展示</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>交互式探索发现隐藏关联</span></li>
+                    </ul>
+                </div>
+                <div class="col-md-6 order-md-2 order-1">
+                    <img src="static/images/kg-demo.jpg" alt="知识图谱演示" class="showcase-img">
+                </div>
+            </div>
+            
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <img src="static/images/chat-demo.jpg" alt="深度思考助手演示" class="showcase-img">
+                </div>
+                <div class="col-md-6 showcase-content">
+                    <h3 class="showcase-title">深度思考旅游助手</h3>
+                    <p>展示AI推理过程的透明化旅游规划助手，让用户了解每一个推荐背后的思考逻辑。</p>
+                    <ul class="showcase-list">
+                        <li><i class="bi bi-check-circle-fill"></i> <span>可视化思维链与推理过程</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>文化深度解析与行程规划</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>根据用户需求动态调整方案</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>专业级旅游建议与文化解读</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 在线演示 -->
+    <section class="demo-section" id="demo">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">在线演示</h2>
+                <p class="text-muted">亲身体验智游灵系统的创新功能</p>
+            </div>
+            
+            <div class="mb-4">
+                <ul class="nav nav-tabs custom-tabs" id="demoTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rag-tab" data-bs-toggle="tab" data-bs-target="#rag-demo" type="button" role="tab">
+                            <i class="bi bi-geo-alt"></i>空间感知RAG
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="kg-tab" data-bs-toggle="tab" data-bs-target="#kg-demo" type="button" role="tab">
+                            <i class="bi bi-diagram-3"></i>文化旅游知识图谱
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat-demo" type="button" role="tab">
+                            <i class="bi bi-chat-dots"></i>深度思考助手
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="unified-tab" data-bs-toggle="tab" data-bs-target="#unified-demo" type="button" role="tab">
+                            <i class="bi bi-layers"></i>一体化体验
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content mt-3" id="demoTabContent">
+                    <div class="tab-pane fade" id="rag-demo" role="tabpanel">
+                        <iframe src="/rag" class="demo-frame"></iframe>
+                    </div>
+                    <div class="tab-pane fade" id="kg-demo" role="tabpanel">
+                        <iframe src="/graph" class="demo-frame"></iframe>
+                    </div>
+                    <div class="tab-pane fade" id="chat-demo" role="tabpanel">
+                        <iframe src="/chat" class="demo-frame"></iframe>
+                    </div>
+                    <div class="tab-pane fade" id="unified-demo" role="tabpanel">
+                        <iframe src="/unified" class="demo-frame"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h4 class="footer-title">智游灵</h4>
+                    <p>基于空间感知与多源数据的个性化文化旅行规划系统</p>
+                    <p>融合地理信息与文化语义，打造全新旅游体验</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h4 class="footer-title">核心技术</h4>
+                    <ul class="footer-list">
+                        <li>空间感知检索增强生成</li>
+                        <li>多模态信息融合</li>
+                        <li>知识图谱构建与可视化</li>
+                        <li>大语言模型深度思考</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4 class="footer-title">联系我们</h4>
+                    <ul class="footer-list">
+                        <li><i class="bi bi-envelope"></i> <a href="mailto:info@youling.com">info@youling.com</a></li>
+                        <li><i class="bi bi-telephone"></i> <a href="tel:+8610000000">+86 100 0000 0000</a></li>
+                        <li><i class="bi bi-geo-alt"></i> 中国浙江省杭州市</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="mt-4 mb-4" style="border-color: rgba(255,255,255,0.1);">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 智游灵 - 空间感知文化旅行规划系统. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 页面滚动监听，用于导航高亮
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            window.addEventListener('scroll', function() {
+                let current = '';
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (pageYOffset >= (sectionTop - sectionHeight / 3)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').indexOf(current) !== -1) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // 标签页切换时重新加载iframe
+            const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
+            tabs.forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function(e) {
+                    const target = e.target.getAttribute('data-bs-target');
+                    const iframe = document.querySelector(`${target} iframe`);
+                    iframe.src = iframe.src;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

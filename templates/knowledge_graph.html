@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智游灵 - 杭州旅游知识图谱</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e88e5 0%, #005cb2 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-btn i {
+            margin-right: 5px;
+        }
+        
+        .flex-container {
+            display: flex;
+            height: calc(100vh - 120px);
+            background-color: #f9fbfd;
+        }
+        
+        .graph-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.03);
+        }
+        
+        .info-panel {
+            width: 320px;
+            background-color: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            padding: 20px;
+            border-left: 1px solid #eaeff5;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .panel-section {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eef2f7;
+            padding-bottom: 20px;
+        }
+        
+        .panel-section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-heading {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1976d2;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-heading::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background-color: #1976d2;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+        
+        .setting-item {
+            margin-bottom: 15px;
+        }
+        
+        .setting-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #455a64;
+        }
+        
+        .category-filters {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .category-filter {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background-color: #f5f9ff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .category-filter:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .category-filter.active {
+            background-color: #e3f2fd;
+            border-left: 3px solid #1976d2;
+        }
+        
+        .category-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .hover-effect {
+            pointer-events: none;
+        }
+        
+        .category-indicator {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+        }
+        
+        .rating-stars {
+            color: #FFD700;
+            display: inline-flex;
+        }
+        
+        .empty-star {
+            color: #e0e0e0;
+        }
+        
+        .poi-image {
+            width: 100%;
+            height: 180px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .poi-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .connected-poi {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+        
+        .connected-poi:hover {
+            color: #1976D2;
+            background-color: #f5f9ff;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #455a64;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 5px;
+            color: #1e88e5;
+        }
+        
+        .review {
+            padding: 12px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .review-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #455a64;
+        }
+        
+        .review-content {
+            font-size: 13px;
+            color: #607d8b;
+        }
+        
+        .poi-detail {
+            margin-bottom: 20px;
+        }
+        
+        .poi-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #263238;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 6px;
+        }
+        
+        .info-label {
+            width: 80px;
+            font-weight: 500;
+            color: #607d8b;
+        }
+        
+        .info-value {
+            flex: 1;
+            color: #37474f;
+        }
+        
+        .graph-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.8);
+            z-index: 100;
+        }
+        
+        .loading-text {
+            margin-left: 12px;
+            font-weight: 500;
+            color: #455a64;
+        }
+        
+        .kg-tooltip {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border: none !important;
+            padding: 15px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+            backdrop-filter: blur(5px) !important;
+            border: 1px solid rgba(230, 230, 250, 0.7) !important;
+        }
+        
+        /* 修改链接样式 */
+        .kg-link {
+            stroke: #ccc;
+            stroke-opacity: 0.6;
+        }
+        
+        /* 修改节点样式 */
+        .kg-node circle {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+        
+        .kg-node text {
+            fill: #333;
+            font-size: 10px;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <a href="/" class="back-btn">
+                <i class="bi bi-arrow-left"></i> 返回首页
+            </a>
+            <h1><i class="bi bi-diagram-3-fill"></i> 旅游知识图谱</h1>
+            <p class="lead mb-0">探索杭州景点间的文化连接与空间关系</p>
+        </div>
+    </div>
+
+    <div class="flex-container">
+        <div class="graph-container">
+            <div class="controls">
+                <h5 class="mb-2"><i class="bi bi-info-circle"></i> 知识图谱信息</h5>
+                <div class="d-flex flex-column mb-2">
+                    <div class="text-muted small">缩放: <span id="zoom-level">100%</span></div>
+                    <div class="text-muted small">节点: <span id="node-count">0</span></div>
+                    <div class="text-muted small">连接: <span id="link-count">0</span></div>
+                </div>
+                <h6 class="mt-3 mb-2 small text-muted">景点分类</h6>
+                <div id="categories-legend"></div>
+            </div>
+            
+            <div class="graph-loading" id="graph-loading">
+                <div class="spinner-border text-primary" role="status"></div>
+                <span class="loading-text">正在构建知识图谱...</span>
+            </div>
+            
+            <svg id="graph-svg"></svg>
+        </div>
+        
+        <div class="info-panel">
+            <h3 class="text-primary mb-4">旅游知识图谱</h3>
+            
+            <div class="panel-section">
+                <h5 class="section-heading">景点分类</h5>
+                <div class="category-filters" id="category-filters">
+                    <!-- 分类过滤器将在JS中动态创建 -->
+                </div>
+            </div>
+            
+            <div class="panel-section">
+                <h5 class="section-heading">知识图谱设置</h5>
+                
+                <div class="setting-item">
+                    <label for="repulsion-force">节点排斥力:</label>
+                    <input type="range" id="repulsion-force" class="form-range" min="50" max="500" value="300">
+                </div>
+                
+                <div class="setting-item">
+                    <label for="link-strength">连接距离:</label>
+                    <input type="range" id="link-strength" class="form-range" min="30" max="200" value="100">
+                </div>
+                
+                <div class="setting-item">
+                    <label for="layout-mode">布局模式:</label>
+                    <select id="layout-mode" class="form-select form-select-sm">
+                        <option value="force">自由力导向</option>
+                        <option value="radial">放射状布局</option>
+                        <option value="grid">网格布局</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="panel-section" id="poi-info">
+                <div class="text-muted text-center py-4" id="default-message">
+                    <i class="bi bi-mouse" style="font-size: 3rem; color: #b0bec5;"></i>
+                    <p class="mt-3">点击景点节点查看详细信息</p>
+                    <hr>
+                    <p class="small">
+                        <i class="bi bi-mouse-fill me-1"></i> 点击节点查看详情<br>
+                        <i class="bi bi-zoom-in me-1"></i> 使用鼠标滚轮缩放<br>
+                        <i class="bi bi-hand-index me-1"></i> 拖动可平移图谱<br>
+                        <i class="bi bi-cursor me-1"></i> 悬停可查看连接关系
+                    </p>
+                </div>
+                <div id="hover-info" class="text-muted text-center py-4" style="display: none;">
+                    <p>悬停信息：<span id="hover-name"></span></p>
+                    <p>点击查看详细信息</p>
+                </div>
+                <div id="poi-details" style="display: none;">
+                    <!-- POI详细信息将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let globalGraphData = null;
+        let simulation = null;
+        let selectedCategories = [];
+        
+        // 当页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从后端获取数据
+            fetch('/api/graph_data')
+                .then(response => response.json())
+                .then(data => {
+                    // 保存全局数据
+                    globalGraphData = data;
+                    
+                    // 隐藏加载动画
+                    document.getElementById('graph-loading').style.display = 'none';
+                    
+                    // 初始化所有分类为选中状态
+                    selectedCategories = data.categories.map(c => c.name);
+                    
+                    // 创建分类过滤器
+                    createCategoryFilters(data.categories);
+                    
+                    // 渲染知识图谱
+                    renderGraph(data);
+                    updateCategoriesLegend(data.categories);
+                    updateCounters(data.nodes.length, data.links.length);
+                    
+                    // 添加控制器事件监听
+                    setupControlListeners();
+                })
+                .catch(error => {
+                    console.error('获取数据错误:', error);
+                    document.getElementById('graph-loading').innerHTML = 
+                        '<div class="text-danger"><i class="bi bi-exclamation-triangle"></i> 加载知识图谱失败，请刷新页面重试</div>';
+                });
+        });
+        
+        // 创建分类过滤器
+        function createCategoryFilters(categories) {
+            const filterContainer = document.getElementById('category-filters');
+            filterContainer.innerHTML = '';
+            
+            categories.forEach(category => {
+                const filterItem = document.createElement('div');
+                filterItem.className = 'category-filter active';
+                filterItem.dataset.category = category.name;
+                filterItem.innerHTML = `
+                    <span class="category-color" style="background-color: ${category.color}"></span>
+                    <span>${category.name}</span>
+                `;
+                
+                filterItem.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    
+                    // 更新选中的分类
+                    if (this.classList.contains('active')) {
+                        selectedCategories.push(category.name);
+                    } else {
+                        selectedCategories = selectedCategories.filter(c => c !== category.name);
+                    }
+                    
+                    // 重新渲染图谱，只显示选中分类的节点
+                    updateGraphWithFilters();
+                });
+                
+                filterContainer.appendChild(filterItem);
+            });
+        }
+        
+        // 基于选中的分类过滤数据并更新图谱
+        function updateGraphWithFilters() {
+            if (!globalGraphData) return;
+            
+            // 过滤节点
+            const filteredNodes = globalGraphData.nodes.filter(node => 
+                selectedCategories.includes(node.category)
+            );
+            
+            // 获取过滤后节点的ID
+            const filteredNodeIds = filteredNodes.map(node => node.id);
+            
+            // 过滤连接，只保留两端都在过滤后节点中的连接
+            const filteredLinks = globalGraphData.links.filter(link => 
+                filteredNodeIds.includes(link.source.id || link.source) && 
+                filteredNodeIds.includes(link.target.id || link.target)
+            );
+            
+            // 使用过滤后的数据重新渲染图谱
+            renderGraph({
+                nodes: filteredNodes,
+                links: filteredLinks,
+                categories: globalGraphData.categories
+            });
+            
+            // 更新计数器
+            updateCounters(filteredNodes.length, filteredLinks.length);
+        }
+        
+        // 设置控制器事件监听
+        function setupControlListeners() {
+            // 排斥力控制
+            document.getElementById('repulsion-force').addEventListener('input', function() {
+                if (!simulation) return;
+                
+                const forceValue = -parseInt(this.value);
+                simulation.force('charge').strength(forceValue);
+                simulation.alpha(0.3).restart();
+            });
+            
+            // 连接距离控制
+            document.getElementById('link-strength').addEventListener('input', function() {
+                if (!simulation) return;
+                
+                const distance = parseInt(this.value);
+                simulation.force('link').distance(distance);
+                simulation.alpha(0.3).restart();
+            });
+            
+            // 布局模式切换
+            document.getElementById('layout-mode').addEventListener('change', function() {
+                if (!globalGraphData) return;
+                
+                updateGraphWithFilters();
+            });
+        }
+        
+        // 渲染知识图谱
+        function renderGraph(data) {
+            // 清除原有的SVG内容
+            d3.select('#graph-svg').selectAll('*').remove();
+            
+            const width = document.querySelector('.graph-container').clientWidth;
+            const height = document.querySelector('.graph-container').clientHeight;
+            
+            // 创建SVG
+            const svg = d3.select('#graph-svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', [0, 0, width, height]);
+            
+            // 添加缩放行为
+            const zoomBehavior = d3.zoom()
+                .scaleExtent([0.3, 4]) // 允许更大范围的缩放
+                .on('zoom', (event) => {
+                    container.attr('transform', event.transform);
+                    updateZoomLevel(Math.round(event.transform.k * 100));
+                });
+            
+            svg.call(zoomBehavior);
+            
+            // 创建容器
+            const container = svg.append('g')
+                .attr('class', 'container');
+            
+            // 创建工具提示
+            const tooltip = d3.select('.graph-container')
+                .append("div")
+                .attr("class", "kg-tooltip")
+                .style("position", "absolute")
+                .style("visibility", "hidden")
+                .style("background-color", "rgba(255, 255, 255, 0.95)")
+                .style("border", "none")
+                .style("padding", "15px")
+                .style("border-radius", "8px")
+                .style("box-shadow", "0 4px 20px rgba(0, 0, 0, 0.15)")
+                .style("max-width", "280px")
+                .style("font-size", "12px")
+                .style("z-index", "1000")
+                .style("transition", "opacity 0.3s ease, transform 0.3s ease")
+                .style("opacity", 0)
+                .style("transform", "translateY(10px)")
+                .style("backdrop-filter", "blur(5px)")
+                .style("border", "1px solid rgba(230, 230, 250, 0.7)");
+            
+            // 准备数据
+            const nodesById = {};
+            data.nodes.forEach(node => {
+                nodesById[node.id] = node;
+            });
+            
+            const links = data.links.map(link => ({
+                ...link,
+                source: nodesById[link.source] || link.source,
+                target: nodesById[link.target] || link.target
+            }));
+            
+            // 创建力导向模拟
+            const layoutMode = document.getElementById('layout-mode').value;
+            
+            // 基础力导向设置
+            simulation = d3.forceSimulation(data.nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(parseInt(document.getElementById('link-strength').value)))
+                .force('charge', d3.forceManyBody().strength(-parseInt(document.getElementById('repulsion-force').value)))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collide', d3.forceCollide().radius(d => getNodeRadius(d) + 2));
+            
+            // 根据布局模式调整
+            if (layoutMode === 'radial') {
+                // 放射状布局
+                simulation
+                    .force('x', d3.forceX(width / 2).strength(0.1))
+                    .force('y', d3.forceY(height / 2).strength(0.1))
+                    .force('radial', d3.forceRadial(Math.min(width, height) * 0.4, width / 2, height / 2).strength(1));
+            } else if (layoutMode === 'grid') {
+                // 网格布局
+                const gridSize = Math.ceil(Math.sqrt(data.nodes.length));
+                const cellSize = Math.min(width, height) / gridSize;
+                
+                data.nodes.forEach((node, i) => {
+                    node.fx = (i % gridSize) * cellSize + cellSize / 2;
+                    node.fy = Math.floor(i / gridSize) * cellSize + cellSize / 2;
+                });
+            }
+            
+            // 基于流行度确定节点半径
+            function getNodeRadius(node) {
+                // 根据节点是否被高亮或选择来决定大小
+                const baseRadius = node.highlighted ? 12 : 10;
+                // 可以根据其他属性进一步调整大小，比如评分或流行度
+                return baseRadius + (node.popularity ? (node.popularity * 0.15) : 0);
+            }
+            
+            // 根据分类获取节点颜色
+            function getNodeColor(node) {
+                const category = data.categories.find(c => c.name === node.category);
+                return category ? category.color : '#999';
+            }
+            
+            // 添加径向渐变定义和发光效果
+            const defs = svg.append("defs");
+            
+            // 为每种类别创建径向渐变
+            data.categories.forEach(category => {
+                const gradientId = "gradient-" + category.name.replace(/\s+/g, '-').toLowerCase();
+                
+                // 提取基础颜色
+                const baseColor = category.color || '#999';
+                
+                // 计算渐变的亮色和暗色版本
+                function pSBC(p, c0, c1, l) {
+                    let r, g, b, P, f, t, h, i = parseInt, m = Math.round, a = typeof (c1) == "string";
+                    if (typeof (p) != "number" || p < -1 || p > 1 || typeof (c0) != "string" || (c0[0] != 'r' && c0[0] != '#') || (c1 && !a)) return null;
+                    h = c0.length > 9;
+                    if (h) {
+                        c0 = c0.split(","), c1 = c1 || (p < 0 ? "rgb(0,0,0)" : "rgb(255,255,255)"), c1 = c1.match(/\d+/g);
+                        for (let t = 0, j = 0; j < 3; j++) c0[j] = i((c0[j].match(/[\d\.]+/)) * (h ? 1 : 255)) + (h ? 0 : (c1 ? i(c1[j]) : 0)) * p;
+                        if (h) c0[3] = i((c0[3].match(/[\d\.]+/)) * 255 + p * 255);
+                    } else {
+                        c0 = c0.split(","), c1 = c1 || (p < 0 ? "#000000" : "#FFFFFF"), c1 = c1.match(/#?[\da-f]{6}|#?[\da-f]{3}/i)[0];
+                        for (let j = 0, t = 0; j < 6; j += 2) c0[t] = i(c0[t++] = (c0[j] + c0[j + 1] * 16).toString(10)) + (p < 0 ? 0 : 255 - i(c0[t - 1])) * p;
+                    }
+                    let rgb = c0.map(i => (t = i < 0 ? 0 : i > 255 ? 255 : i, (t < 16 ? "0" : "") + t.toString(16))).join("");
+                    return "#" + rgb;
+                }
+
+                const lighterColor = pSBC(0.2, baseColor); // 更亮的版本
+                const darkerColor = pSBC(-0.2, baseColor); // 更暗的版本
+                
+                const gradient = defs.append("radialGradient")
+                    .attr("id", gradientId)
+                    .attr("cx", "50%")
+                    .attr("cy", "50%")
+                    .attr("r", "50%")
+                    .attr("fx", "50%")
+                    .attr("fy", "50%");
+                    
+                gradient.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", lighterColor || baseColor);
+                    
+                gradient.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", darkerColor || baseColor);
+            });
+            
+            // 添加发光效果滤镜
+            const glowFilter = defs.append("filter")
+                .attr("id", "glow")
+                .attr("height", "300%")
+                .attr("width", "300%")
+                .attr("x", "-100%")
+                .attr("y", "-100%");
+                
+            glowFilter.append("feGaussianBlur")
+                .attr("stdDeviation", "5")
+                .attr("result", "coloredBlur");
+                
+            const glowMerge = glowFilter.append("feMerge");
+            glowMerge.append("feMergeNode").attr("in", "coloredBlur");
+            glowMerge.append("feMergeNode").attr("in", "SourceGraphic");
+            
+            // 添加更强的发光效果
+            const strongGlowFilter = defs.append("filter")
+                .attr("id", "strongGlow")
+                .attr("height", "300%")
+                .attr("width", "300%")
+                .attr("x", "-100%")
+                .attr("y", "-100%");
+                
+            strongGlowFilter.append("feGaussianBlur")
+                .attr("stdDeviation", "10")
+                .attr("result", "coloredBlur");
+                
+            const strongGlowMerge = strongGlowFilter.append("feMerge");
+            strongGlowMerge.append("feMergeNode").attr("in", "coloredBlur");
+            strongGlowMerge.append("feMergeNode").attr("in", "SourceGraphic");
+            
+            // 创建箭头标记
+            svg.append("defs").append("marker")
+                .attr("id", "arrowhead")
+                .attr("viewBox", "-0 -5 10 10")
+                .attr("refX", 25) // 调整箭头位置，使其刚好在节点边缘
+                .attr("refY", 0)
+                .attr("orient", "auto")
+                .attr("markerWidth", 8)
+                .attr("markerHeight", 8)
+                .attr("xoverflow", "visible")
+                .append("path")
+                .attr("d", "M 0,-5 L 10 ,0 L 0,5")
+                .attr("fill", "#ccc")
+                .style("stroke", "none");
+            
+            // 绘制连线
+            const link = container.append('g')
+                .attr('class', 'links')
+                .selectAll('line')
+                .data(links)
+                .enter()
+                .append('line')
+                .attr('class', 'kg-link')
+                .style('stroke', '#ccc')
+                .style('stroke-opacity', 0.6)
+                .style('stroke-width', d => Math.max(1, d.strength * 2 || 1))
+                .attr("marker-end", "url(#arrowhead)")
+                .style("transition", "stroke-opacity 0.4s ease, stroke-width 0.4s ease, stroke 0.4s ease");
+            
+            // 创建节点组
+            const node = container.append('g')
+                .attr('class', 'nodes')
+                .selectAll('.node')
+                .data(data.nodes)
+                .enter()
+                .append('g')
+                .attr('class', 'kg-node')
+                .style("cursor", "pointer")
+                .style("transition", "all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)")
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+            
+            // 添加圆形背景
+            node.append('circle')
+                .attr('r', getNodeRadius)
+                .style('fill', d => {
+                    // 使用基于类别的颜色
+                    const categoryColors = {
+                        '自然景观': '#2c7bb6',
+                        '历史古迹': '#d7191c',
+                        '文化场所': '#fdae61',
+                        '购物区域': '#abd9e9',
+                        '美食街区': '#66bd63',
+                        '景点': '#42a5f5',
+                        '古迹': '#ef5350',
+                        '文化体验': '#5c6bc0',
+                        '历史遗址': '#66bb6a',
+                        '博物馆': '#ec407a',
+                        '茶馆': '#ffa726',
+                        '历史建筑': '#8d6e63'
+                    };
+                    
+                    // 获取节点类别对应的颜色
+                    return d.category && categoryColors[d.category] 
+                           ? categoryColors[d.category] 
+                           : '#999'; // 默认颜色
+                })
+                .style('stroke', '#fff')
+                .style('stroke-width', 1.5)
+                .style("transition", "stroke 0.3s ease, stroke-width 0.3s ease, fill 0.3s ease, filter 0.4s ease")
+                .style("filter", "drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2))");
+            
+            // 添加标签
+            node.append('text')
+                .text(d => d.name)
+                .attr('font-size', d => 10 + (d.popularity ? (d.popularity * 0.03) : 0))
+                .attr('dx', d => getNodeRadius(d) + 5)
+                .attr('dy', 4)
+                .attr('fill', '#333')
+                .style("transition", "font-size 0.3s ease, font-weight 0.3s ease, fill 0.3s ease")
+                .style("pointer-events", "none")
+                .style("text-shadow", "0 1px 2px rgba(255, 255, 255, 0.8)");
+            
+            // 节点交互
+            let selectedNode = null;
+            
+            // 更新工具提示内容和位置函数
+            function updateTooltip(d, event) {
+                const category = data.categories.find(c => c.name === d.category);
+                const categoryColor = category ? category.color : '#999';
+                
+                // 创建工具提示内容
+                let html = `
+                    <h5 style="margin-top: 0; font-size: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; color: #1a237e;">${d.name}</h5>
+                    <p style="margin: 5px 0; line-height: 1.5; color: #37474f;">
+                        <span style="display: inline-block; width: 12px; height: 12px; background-color: ${categoryColor}; border-radius: 2px; margin-right: 5px;"></span>
+                        <span style="font-weight: 500;">${d.category}</span>
+                    </p>
+                `;
+                
+                // 添加描述（如果有）
+                if (d.description) {
+                    html += `<p style="margin: 5px 0; line-height: 1.5; color: #37474f;">${d.description.substring(0, 100)}${d.description.length > 100 ? '...' : ''}</p>`;
+                }
+                
+                // 添加评分（如果有）
+                if (d.rating) {
+                    const stars = '★'.repeat(Math.round(d.rating)) + '☆'.repeat(5 - Math.round(d.rating));
+                    html += `<p style="margin: 5px 0; line-height: 1.5; color: #37474f;">评分: <span style="color: #FFC107;">${stars}</span> (${d.rating})</p>`;
+                }
+                
+                // 票价信息
+                if (d.ticket_price !== undefined) {
+                    html += `<p style="margin: 5px 0; line-height: 1.5; color: #37474f;">票价: ${d.ticket_price > 0 ? '¥' + d.ticket_price : '免费'}</p>`;
+                }
+                
+                // 游览时间
+                if (d.visit_time) {
+                    html += `<p style="margin: 5px 0; line-height: 1.5; color: #37474f;">游览时间: ${d.visit_time}分钟</p>`;
+                }
+                
+                // 更新工具提示内容
+                tooltip.html(html);
+                
+                // 计算工具提示位置
+                const rect = event.currentTarget.getBoundingClientRect();
+                const graphRect = document.querySelector('.graph-container').getBoundingClientRect();
+                
+                const tooltipWidth = 280;
+                const tooltipX = rect.x - graphRect.x + rect.width/2;
+                const tooltipY = rect.y - graphRect.y;
+                
+                // 确保工具提示不超出图谱容器
+                let left = tooltipX;
+                if (left + tooltipWidth > graphRect.width) {
+                    left = left - tooltipWidth;
+                }
+                
+                // 设置位置并显示工具提示
+                tooltip
+                    .style("left", left + "px")
+                    .style("top", (tooltipY - 10) + "px")
+                    .style("visibility", "visible")
+                    .style("opacity", 1)
+                    .style("transform", "translateY(0)");
+            }
+            
+            node.on('mouseover', (event, d) => {
+                // 显示工具提示
+                updateTooltip(d, event);
+                
+                // 高亮当前节点
+                d3.select(event.currentTarget).select('circle')
+                    .style('stroke', '#1976d2')
+                    .style('stroke-width', 3)
+                    .style('filter', 'url(#glow)');
+                
+                // 高亮连接
+                link.style('stroke', l => (l.source.id === d.id || l.target.id === d.id) ? '#1976d2' : '#ccc')
+                    .style('stroke-opacity', l => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.2)
+                    .style('stroke-width', l => (l.source.id === d.id || l.target.id === d.id) ? Math.max(2, l.strength * 4 || 2) : Math.max(1, l.strength * 2 || 1));
+                
+                // 高亮连接的节点
+                node.select('circle').style('stroke-width', n => 
+                    links.some(l => (l.source.id === d.id && l.target.id === n.id) || (l.source.id === n.id && l.target.id === d.id)) ? 3 : 1.5
+                );
+            })
+            .on('mouseout', (event, d) => {
+                // 隐藏工具提示
+                tooltip.style("visibility", "hidden")
+                       .style("opacity", 0)
+                       .style("transform", "translateY(10px)");
+                
+                // 如果没有选中节点，则重置高亮
+                if (!selectedNode) {
+                    // 还原节点样式
+                    node.select('circle')
+                        .style('stroke', '#fff')
+                        .style('stroke-width', 1.5)
+                        .style('filter', null);
+                    
+                    // 还原连接线样式
+                    link.style('stroke', '#ccc')
+                        .style('stroke-opacity', 0.6)
+                        .style('stroke-width', d => Math.max(1, d.strength * 2 || 1));
+                } else {
+                    // 仅突出显示选中节点相关的内容
+                    node.select('circle')
+                        .style('stroke', n => n.id === selectedNode.id ? '#1976d2' : '#fff')
+                        .style('stroke-width', n => n.id === selectedNode.id ? 3 : 1.5)
+                        .style('filter', n => n.id === selectedNode.id ? 'url(#glow)' : null);
+                    
+                    link.style('stroke', l => (l.source.id === selectedNode.id || l.target.id === selectedNode.id) ? '#1976d2' : '#ccc')
+                        .style('stroke-opacity', l => (l.source.id === selectedNode.id || l.target.id === selectedNode.id) ? 1 : 0.2)
+                        .style('stroke-width', l => (l.source.id === selectedNode.id || l.target.id === selectedNode.id) ? 
+                            Math.max(2, l.strength * 4 || 2) : Math.max(1, l.strength * 2 || 1));
+                }
+            })
+            .on('click', (event, d) => {
+                // 隐藏工具提示
+                tooltip.style("visibility", "hidden")
+                       .style("opacity", 0)
+                       .style("transform", "translateY(10px)");
+                
+                // 点击时更新选中节点和预览面板
+                selectedNode = d;
+                showPoiDetails(d, data);
+                
+                // 重置所有节点和连接的样式
+                node.select('circle')
+                    .style('stroke', n => n.id === d.id ? '#1976d2' : '#fff')
+                    .style('stroke-width', n => n.id === d.id ? 3 : 1.5)
+                    .style('filter', n => n.id === d.id ? 'url(#glow)' : null);
+                
+                // 高亮选中节点的连接
+                link.style('stroke', l => (l.source.id === d.id || l.target.id === d.id) ? '#1976d2' : '#ccc')
+                    .style('stroke-opacity', l => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.2)
+                    .style('stroke-width', l => (l.source.id === d.id || l.target.id === d.id) ? 
+                        Math.max(2, l.strength * 4 || 2) : Math.max(1, l.strength * 2 || 1));
+            });
+            
+            // 更新位置
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+                
+                node.attr('transform', d => `translate(${d.x}, ${d.y})`);
+            });
+            
+            // 拖动函数
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+                
+                // 隐藏工具提示
+                tooltip.style("visibility", "hidden")
+                       .style("opacity", 0);
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+            
+            // 添加缩放控制按钮
+            const zoomControls = d3.select('.graph-container')
+                .append('div')
+                .attr('class', 'zoom-controls')
+                .style('position', 'absolute')
+                .style('bottom', '15px')
+                .style('right', '15px')
+                .style('display', 'flex')
+                .style('flex-direction', 'column')
+                .style('z-index', '100')
+                .style('background', 'rgba(255, 255, 255, 0.8)')
+                .style('padding', '5px')
+                .style('border-radius', '8px')
+                .style('box-shadow', '0 2px 10px rgba(0, 0, 0, 0.1)')
+                .style('backdrop-filter', 'blur(5px)')
+                .style('border', '1px solid rgba(230, 230, 250, 0.7)');
+            
+            // 放大按钮
+            zoomControls.append('button')
+                .style('width', '32px')
+                .style('height', '32px')
+                .style('margin', '3px')
+                .style('border', 'none')
+                .style('border-radius', '6px')
+                .style('background', 'white')
+                .style('cursor', 'pointer')
+                .style('display', 'flex')
+                .style('align-items', 'center')
+                .style('justify-content', 'center')
+                .style('font-size', '18px')
+                .style('box-shadow', '0 1px 3px rgba(0, 0, 0, 0.1)')
+                .style('transition', 'all 0.2s ease')
+                .style('color', '#1976d2')
+                .html('<i class="bi bi-zoom-in"></i>')
+                .on('click', () => {
+                    const transform = d3.zoomIdentity.scale(
+                        Math.min(4, zoomBehavior.transform.k * 1.3)
+                    ).translate(
+                        zoomBehavior.transform.x,
+                        zoomBehavior.transform.y
+                    );
+                    svg.call(zoomBehavior.transform, transform);
+                })
+                .on('mouseover', function() {
+                    d3.select(this)
+                        .style('background-color', '#1976d2')
+                        .style('color', 'white')
+                        .style('box-shadow', '0 3px 8px rgba(25, 118, 210, 0.3)');
+                })
+                .on('mouseout', function() {
+                    d3.select(this)
+                        .style('background-color', 'white')
+                        .style('color', '#1976d2')
+                        .style('box-shadow', '0 1px 3px rgba(0, 0, 0, 0.1)');
+                });
+            
+            // 缩小按钮
+            zoomControls.append('button')
+                .style('width', '32px')
+                .style('height', '32px')
+                .style('margin', '3px')
+                .style('border', 'none')
+                .style('border-radius', '6px')
+                .style('background', 'white')
+                .style('cursor', 'pointer')
+                .style('display', 'flex')
+                .style('align-items', 'center')
+                .style('justify-content', 'center')
+                .style('font-size', '18px')
+                .style('box-shadow', '0 1px 3px rgba(0, 0, 0, 0.1)')
+                .style('transition', 'all 0.2s ease')
+                .style('color', '#1976d2')
+                .html('<i class="bi bi-zoom-out"></i>')
+                .on('click', () => {
+                    const transform = d3.zoomIdentity.scale(
+                        Math.max(0.3, zoomBehavior.transform.k / 1.3)
+                    ).translate(
+                        zoomBehavior.transform.x,
+                        zoomBehavior.transform.y
+                    );
+                    svg.call(zoomBehavior.transform, transform);
+                })
+                .on('mouseover', function() {
+                    d3.select(this)
+                        .style('background-color', '#1976d2')
+                        .style('color', 'white')
+                        .style('box-shadow', '0 3px 8px rgba(25, 118, 210, 0.3)');
+                })
+                .on('mouseout', function() {
+                    d3.select(this)
+                        .style('background-color', 'white')
+                        .style('color', '#1976d2')
+                        .style('box-shadow', '0 1px 3px rgba(0, 0, 0, 0.1)');
+                });
+            
+            // 重置视图按钮
+            zoomControls.append('button')
+                .style('width', '32px')
+                .style('height', '32px')
+                .style('margin', '3px')
+                .style('border', 'none')
+                .style('border-radius', '6px')
+                .style('background', 'white')
+                .style('cursor', 'pointer')
+                .style('display', 'flex')
+                .style('align-items', 'center')
+                .style('justify-content', 'center')
+                .style('font-size', '18px')
+                .style('box-shadow', '0 1px 3px rgba(0, 0, 0, 0.1)')
+                .style('transition', 'all 0.2s ease')
+                .style('color', '#1976d2')
+                .html('<i class="bi bi-arrows-fullscreen"></i>')
+                .on('click', () => {
+                    svg.call(zoomBehavior.transform, d3.zoomIdentity);
+                })
+                .on('mouseover', function() {
+                    d3.select(this)
+                        .style('background-color', '#1976d2')
+                        .style('color', 'white')
+                        .style('box-shadow', '0 3px 8px rgba(25, 118, 210, 0.3)');
+                })
+                .on('mouseout', function() {
+                    d3.select(this)
+                        .style('background-color', 'white')
+                        .style('color', '#1976d2')
+                        .style('box-shadow', '0 1px 3px rgba(0, 0, 0, 0.1)');
+                });
+        }
+        
+        // 更新分类图例
+        function updateCategoriesLegend(categories) {
+            const legend = document.getElementById('categories-legend');
+            legend.innerHTML = '';
+            
+            categories.forEach(category => {
+                const item = document.createElement('div');
+                item.className = 'category-indicator';
+                item.innerHTML = `
+                    <div class="category-color" style="background-color: ${category.color}"></div>
+                    <span class="small">${category.name}</span>
+                `;
+                legend.appendChild(item);
+            });
+        }
+        
+        // 更新计数器
+        function updateCounters(nodeCount, linkCount) {
+            document.getElementById('node-count').textContent = nodeCount;
+            document.getElementById('link-count').textContent = linkCount;
+        }
+        
+        // 更新缩放级别
+        function updateZoomLevel(level) {
+            document.getElementById('zoom-level').textContent = level + '%';
+        }
+        
+        // 显示POI详细信息
+        function showPoiDetails(poi, data) {
+            document.getElementById('default-message').style.display = 'none';
+            document.getElementById('hover-info').style.display = 'none';
+            
+            const poiDetails = document.getElementById('poi-details');
+            poiDetails.style.display = 'block';
+            
+            // 获取分类信息
+            const category = data.categories.find(c => c.name === poi.category);
+            
+            // 生成评分星星
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(poi.rating)) {
+                    starsHtml += '<span>★</span>';
+                } else if (i - 0.5 <= poi.rating) {
+                    starsHtml += '<span>★</span>';
+                } else {
+                    starsHtml += '<span class="empty-star">★</span>';
+                }
+            }
+            
+            // 获取连接的POI
+            const connectedPois = data.links
+                .filter(link => link.source.id === poi.id || link.target.id === poi.id)
+                .map(link => link.source.id === poi.id ? link.target : link.source);
+            
+            // 创建连接POI列表
+            let connectedPoisHtml = '';
+            connectedPois.forEach(connectedPoi => {
+                const connectedCategory = data.categories.find(c => c.name === connectedPoi.category);
+                connectedPoisHtml += `
+                    <div class="connected-poi" onclick="showPoiDetails(${JSON.stringify(connectedPoi).replace(/"/g, '&quot;')}, ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                        <i class="bi bi-arrow-right-circle text-primary me-2"></i>
+                        ${connectedPoi.name} 
+                        <small class="ms-2 badge" style="background-color: ${connectedCategory.color};">${connectedPoi.category}</small>
+                    </div>
+                `;
+            });
+            
+            // 生成HTML
+            poiDetails.innerHTML = `
+                <div class="section-heading">景点详情</div>
+                <div class="poi-detail">
+                    <div class="poi-name">${poi.name}</div>
+                    
+                    <div class="category-badge" style="background-color: ${category.color}">
+                        ${poi.category}
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rating-stars me-2">
+                            ${starsHtml}
+                        </div>
+                        <span class="small">${poi.rating} (${poi.reviews} 条评价)</span>
+                    </div>
+                    
+                    <div class="poi-image">
+                        <img src="${poi.image || 'static/images/default-poi.jpg'}" alt="${poi.name}" class="img-fluid">
+                    </div>
+                    
+                    <p class="mb-4">${poi.description}</p>
+                    
+                    <div class="info-row">
+                        <div class="info-label">地址：</div>
+                        <div class="info-value">${poi.address}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">开放时间：</div>
+                        <div class="info-value">${poi.opening_hours}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">门票：</div>
+                        <div class="info-value">${poi.ticket_price}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">最佳季节：</div>
+                        <div class="info-value">${poi.best_season}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">交通：</div>
+                        <div class="info-value">${poi.transportation}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">小贴士：</div>
+                        <div class="info-value">${poi.tips}</div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="section-title"><i class="bi bi-book"></i> 历史意义</div>
+                        <p class="small text-muted">${poi.historical_significance}</p>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <div class="section-title"><i class="bi bi-calendar-check"></i> 收录年份</div>
+                        <p class="small">${poi.year}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="section-heading">相关景点</div>
+                    <div class="connected-pois">
+                        ${connectedPoisHtml || '<div class="text-muted small text-center py-2">无相关景点连接</div>'}
+                    </div>
+                </div>
+                
+                <div class="mt-4 mb-4">
+                    <div class="section-heading">游客评价</div>
+                    <div class="reviews">
+                        <div class="review">
+                            <div class="review-title">美丽的地方！</div>
+                            <p class="review-content">这个地方太棒了，喜欢这里的氛围和风景。到杭州一定要来。</p>
+                        </div>
+                        <div class="review">
+                            <div class="review-title">很值得一游</div>
+                            <p class="review-content">景点维护得很好，有很重要的历史意义。强烈推荐！</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

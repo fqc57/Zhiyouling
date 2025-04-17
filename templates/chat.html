@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智游灵 - 深度思考旅游助手</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            background-color: #f5f5f5;
+            height: 100%;
+            color: #263238;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e88e5 0%, #005cb2 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .back-btn i {
+            margin-right: 5px;
+        }
+        
+        .chat-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 2rem;
+        }
+        
+        .chat-header {
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .chat-title {
+            font-weight: 600;
+            color: #263238;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-title i {
+            margin-right: 10px;
+            color: #1e88e5;
+        }
+        
+        .chat-description {
+            color: #607d8b;
+            margin-top: 0.5rem;
+        }
+        
+        .input-area {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #prompt {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        #prompt:focus {
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.2);
+            outline: none;
+        }
+        
+        .send-button {
+            padding: 0 1.5rem;
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-button:hover {
+            background-color: #1976D2;
+            box-shadow: 0 3px 10px rgba(30, 136, 229, 0.3);
+        }
+        
+        .send-button i {
+            margin-right: 8px;
+        }
+        
+        #response {
+            margin-top: 1.5rem;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        
+        .response-container {
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .reasoning-container {
+            margin-bottom: 1.5rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .reasoning-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: #f0f7ff;
+            border-bottom: 1px solid #e1effe;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .reasoning-header:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .reasoning-title {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            color: #0d47a1;
+            flex: 1;
+        }
+        
+        .reasoning-title i {
+            margin-right: 8px;
+        }
+        
+        .reasoning-content {
+            padding: 15px;
+            color: #455a64;
+            font-style: italic;
+            line-height: 1.7;
+            max-height: 500px;
+            overflow-y: auto;
+            transition: max-height 0.3s ease-out;
+            background-color: #fdfdfd;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .reasoning-content.collapsed {
+            max-height: 0;
+            padding: 0 15px;
+            overflow: hidden;
+        }
+        
+        .toggle-icon {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+            color: #1e88e5;
+        }
+        
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        .separator {
+            border-top: 1px solid #e0e0e0;
+            margin: 20px 0;
+        }
+        
+        .final-answer {
+            color: #37474f;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        
+        .response-status {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            height: 20px;
+        }
+        
+        .typing-dot {
+            background-color: #90a4ae;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: typingAnimation 1.5s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        .status-message {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background-color: #f1f8e9;
+            border-left: 3px solid #8bc34a;
+            color: #558b2f;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        @keyframes typingAnimation {
+            0% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+        }
+        
+        /* 输入框提示文本 */
+        .prompt-examples {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        
+        .prompt-examples h6 {
+            color: #455a64;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .example-item {
+            padding: 10px;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .example-item:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .example-item i {
+            margin-right: 8px;
+            color: #1e88e5;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .chat-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .input-area {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .send-button {
+                height: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <a href="/" class="back-btn">
+                <i class="bi bi-arrow-left"></i> 返回首页
+            </a>
+            <h1><i class="bi bi-chat-dots-fill"></i> 深度思考旅游助手</h1>
+            <p class="lead mb-0">可视化思考链的个性化旅游规划服务</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h4 class="chat-title"><i class="bi bi-lightbulb-fill"></i> 深度思考旅游助手</h4>
+                <p class="chat-description">提供透明的旅游规划建议，展示推荐背后的思考逻辑，帮助您了解旅行规划的每一步决策过程。</p>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" id="prompt" placeholder="请输入您的旅游规划问题，例如：'杭州三天两夜怎么玩？'" autofocus>
+                <button class="send-button" onclick="sendPrompt()">
+                    <i class="bi bi-send"></i> 发送
+                </button>
+            </div>
+            
+            <div id="response"></div>
+            
+            <div class="prompt-examples">
+                <h6><i class="bi bi-card-list"></i> 示例问题</h6>
+                <div class="example-item" onclick="setExamplePrompt('我计划五月份去杭州旅游三天，推荐一下行程安排，想体验茶文化和历史景点。')">
+                    <i class="bi bi-chat-square-text"></i> 我计划五月份去杭州旅游三天，推荐一下行程安排，想体验茶文化和历史景点。
+                </div>
+                <div class="example-item" onclick="setExamplePrompt('我和家人计划春节期间去杭州，有两个小孩（5岁和8岁），有哪些适合一家人的景点和活动？')">
+                    <i class="bi bi-chat-square-text"></i> 我和家人计划春节期间去杭州，有两个小孩（5岁和8岁），有哪些适合一家人的景点和活动？
+                </div>
+                <div class="example-item" onclick="setExamplePrompt('作为一个摄影爱好者，杭州有哪些最佳拍摄地点？什么季节去最好？')">
+                    <i class="bi bi-chat-square-text"></i> 作为一个摄影爱好者，杭州有哪些最佳拍摄地点？什么季节去最好？
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isProcessing = false;
+        
+        function sendPrompt() {
+            if (isProcessing) return;
+            
+            const prompt = document.getElementById('prompt').value;
+            if (!prompt) return;
+            
+            isProcessing = true;
+            
+            const responseDiv = document.getElementById('response');
+            
+            // 创建响应容器
+            const responseContainer = document.createElement('div');
+            responseContainer.className = 'response-container';
+            
+            // 添加状态指示器
+            const statusIndicator = document.createElement('div');
+            statusIndicator.className = 'response-status';
+            statusIndicator.textContent = '思考中...';
+            responseContainer.appendChild(statusIndicator);
+            
+            // 创建思考过程容器
+            const reasoningContainer = document.createElement('div');
+            reasoningContainer.className = 'reasoning-container';
+            
+            // 创建思考过程标题
+            const reasoningHeader = document.createElement('div');
+            reasoningHeader.className = 'reasoning-header';
+            
+            const reasoningTitle = document.createElement('div');
+            reasoningTitle.className = 'reasoning-title';
+            reasoningTitle.innerHTML = '<i class="bi bi-braces"></i> 思维链过程';
+            
+            const toggleIcon = document.createElement('i');
+            toggleIcon.className = 'bi bi-chevron-down toggle-icon';
+            
+            reasoningHeader.appendChild(reasoningTitle);
+            reasoningHeader.appendChild(toggleIcon);
+            
+            // 点击切换显示/隐藏思考过程
+            reasoningHeader.onclick = function() {
+                const content = reasoningContainer.querySelector('.reasoning-content');
+                const icon = reasoningHeader.querySelector('.toggle-icon');
+                content.classList.toggle('collapsed');
+                icon.classList.toggle('collapsed');
+            };
+            
+            // 创建思考过程内容区域
+            const reasoningContent = document.createElement('div');
+            reasoningContent.className = 'reasoning-content';
+            
+            // 创建分隔线
+            const separator = document.createElement('div');
+            separator.className = 'separator';
+            separator.style.display = 'none';
+            
+            // 创建最终答案区域
+            const finalAnswer = document.createElement('div');
+            finalAnswer.className = 'final-answer';
+            
+            // 组装所有元素
+            reasoningContainer.appendChild(reasoningHeader);
+            reasoningContainer.appendChild(reasoningContent);
+            responseContainer.appendChild(reasoningContainer);
+            responseContainer.appendChild(separator);
+            responseContainer.appendChild(finalAnswer);
+            
+            // 添加打字指示器
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            finalAnswer.appendChild(typingIndicator);
+            
+            // 将响应容器添加到页面
+            responseDiv.innerHTML = '';
+            responseDiv.appendChild(responseContainer);
+            
+            // 发送请求
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    prompt: prompt,
+                    update_graph: true  // 请求更新知识图谱
+                })
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                let isReasoning = true;
+                let reasoningText = '';
+                let finalText = '';
+                
+                function processStream({ done, value }) {
+                    if (done) {
+                        // 完成处理
+                        typingIndicator.remove();
+                        statusIndicator.textContent = '已完成';
+                        statusIndicator.style.backgroundColor = '#e8f5e9';
+                        statusIndicator.style.color = '#2e7d32';
+                        
+                        // 确保分隔线显示
+                        if (finalText) {
+                            separator.style.display = 'block';
+                        }
+                        
+                        isProcessing = false;
+                        return;
+                    }
+                    
+                    const text = decoder.decode(value, { stream: true });
+                    const lines = text.split('\n\n');
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.substring(6));
+                                
+                                if (data.type === 'reasoning') {
+                                    // 更新思考内容
+                                    reasoningText += data.content;
+                                    reasoningContent.textContent = reasoningText;
+                                    
+                                    // 自动滚动到底部
+                                    reasoningContent.scrollTop = reasoningContent.scrollHeight;
+                                    
+                                } else if (data.type === 'separator') {
+                                    // 显示分隔线，表示思考完成，开始输出最终答案
+                                    isReasoning = false;
+                                    separator.style.display = 'block';
+                                    
+                                    // 更新状态
+                                    statusIndicator.textContent = '生成回答中...';
+                                    
+                                    // 移除打字指示器
+                                    typingIndicator.remove();
+                                    
+                                } else if (data.type === 'content') {
+                                    // 更新最终答案
+                                    finalText += data.content;
+                                    
+                                    // 创建段落并应用格式
+                                    finalAnswer.innerHTML = formatText(finalText);
+                                    
+                                    // 自动滚动到容器底部
+                                    window.scrollTo(0, document.body.scrollHeight);
+                                } else if (data.type === 'status') {
+                                    // 显示状态更新消息
+                                    const statusMsg = document.createElement('div');
+                                    statusMsg.className = 'status-message';
+                                    statusMsg.textContent = data.content;
+                                    finalAnswer.appendChild(statusMsg);
+                                } else if (data.type === 'graph_data') {
+                                    // 收到更新的知识图谱数据
+                                    console.log("收到更新的知识图谱数据");
+                                    
+                                    // 创建状态消息
+                                    const graphMsg = document.createElement('div');
+                                    graphMsg.className = 'status-message';
+                                    graphMsg.innerHTML = '知识图谱已更新 <a href="/graph" target="_blank">点击查看</a>';
+                                    finalAnswer.appendChild(graphMsg);
+                                    
+                                    // 准备查看更新后的知识图谱
+                                    const viewGraphBtn = document.createElement('button');
+                                    viewGraphBtn.className = 'btn btn-outline-primary mt-2';
+                                    viewGraphBtn.innerHTML = '<i class="bi bi-diagram-3"></i> 查看更新后的知识图谱';
+                                    viewGraphBtn.onclick = function() {
+                                        window.open('/graph', '_blank');
+                                    };
+                                    finalAnswer.appendChild(viewGraphBtn);
+                                }
+                            } catch (e) {
+                                console.error('解析数据错误:', e);
+                            }
+                        }
+                    }
+                    
+                    // 继续读取流
+                    return reader.read().then(processStream);
+                }
+                
+                return reader.read().then(processStream);
+            }).catch(error => {
+                console.error('请求出错:', error);
+                responseContainer.innerHTML = '<div class="alert alert-danger">请求出错，请重试</div>';
+                isProcessing = false;
+            });
+            
+            // 清空输入框
+            document.getElementById('prompt').value = '';
+        }
+        
+        // 格式化文本，处理Markdown风格的格式
+        function formatText(text) {
+            // 替换换行符为段落
+            let formatted = text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+            
+            // 包裹在段落标签中
+            formatted = '<p>' + formatted + '</p>';
+            
+            // 处理Markdown样式的列表
+            formatted = formatted.replace(/- (.*?)(<br>|<\/p>)/g, '<li>$1</li>$2');
+            formatted = formatted.replace(/<p>(<li>.*?<\/li>)<\/p>/g, '<ul>$1</ul>');
+            
+            // 处理Markdown样式的加粗
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // 处理Markdown样式的斜体
+            formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            return formatted;
+        }
+        
+        // 设置示例问题
+        function setExamplePrompt(text) {
+            document.getElementById('prompt').value = text;
+            document.getElementById('prompt').focus();
+        }
+        
+        // 添加键盘事件监听
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('prompt').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !isProcessing) {
+                    sendPrompt();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

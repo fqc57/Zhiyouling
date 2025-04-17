@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_d3c33a66b327ddd879b7d9d425adad59 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_d3c33a66b327ddd879b7d9d425adad59" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_d3c33a66b327ddd879b7d9d425adad59 = L.map(
+                "map_d3c33a66b327ddd879b7d9d425adad59",
+                {
+                    center: [30.25, 120.15],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_62c26b6122b78819ad994b5210b31ea9 = L.tileLayer(
+                "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn\u0026size=1\u0026scale=1\u0026style=8\u0026x={x}\u0026y={y}\u0026z={z}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.amap.com/\"\u003e\u9ad8\u5fb7\u5730\u56fe\u003c/a\u003e",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_62c26b6122b78819ad994b5210b31ea9.addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var tile_layer_0555aa96dec776478d275b640ea9b936 = L.tileLayer(
+                "https://webst01.is.autonavi.com/appmaptile?style=6\u0026x={x}\u0026y={y}\u0026z={z}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.amap.com/\"\u003e\u9ad8\u5fb7\u536b\u661f\u56fe\u003c/a\u003e",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_0555aa96dec776478d275b640ea9b936.addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var layer_control_1065c5388cd702f32a77973d47e26578_layers = {
+                base_layers : {
+                    "\u9ad8\u5fb7\u5730\u56fe" : tile_layer_62c26b6122b78819ad994b5210b31ea9,
+                    "\u9ad8\u5fb7\u536b\u661f\u56fe" : tile_layer_0555aa96dec776478d275b640ea9b936,
+                },
+                overlays :  {
+                },
+            };
+            let layer_control_1065c5388cd702f32a77973d47e26578 = L.control.layers(
+                layer_control_1065c5388cd702f32a77973d47e26578_layers.base_layers,
+                layer_control_1065c5388cd702f32a77973d47e26578_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+
+        
+    
+            var marker_13d97aa324e217035f7dbb97769b7580 = L.marker(
+                [31.2667, 118.7917],
+                {
+}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var icon_439b441b9b024a8f2b634832d0019126 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_fcb99667fff7afebb780d598a284ebc2 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_42c787cf4c61e963bbac9370e9c81890 = $(`<div id="html_42c787cf4c61e963bbac9370e9c81890" style="width: 100.0%; height: 100.0%;"><b>侵华日军南京大屠杀遇难同胞纪念馆</b><br>侵华日军南京大屠杀遇难同胞纪念馆位于南京市秦淮区中山路，是为纪念在1937年南京大屠杀中遇难的同胞而建立的纪念馆。纪念馆通过丰富的历史资料和实物展品，展现了侵略战争的残酷性和中国人民的英勇抗争，是进行爱国主义教育和和平教育的重要基地。<br><br>侵华日军南京大屠杀遇难同胞纪念馆是杭州著名的纪念馆景点，侵华日军南京大屠杀遇难同胞纪念馆位于南京市秦淮区中山路，是为纪念在1937年南京大屠杀中遇难的同胞而建立的纪念馆。纪念馆通过丰富的历史资料和实物展品，展现了侵略战争的残酷性和中国人民的英勇抗争，是进行爱国主义教育和和平教育的重要基地。。这里蕴含着丰富的历史纪念, 爱国主义, 战争遗迹等文化元素，是了解杭州历史文化的重要窗口。游览时可以深入体验当地特色，感受杭州的独特魅力。建议花费150分钟细细品味这里的文化底蕴。</div>`)[0];
+                popup_fcb99667fff7afebb780d598a284ebc2.setContent(html_42c787cf4c61e963bbac9370e9c81890);
+            
+        
+
+        marker_13d97aa324e217035f7dbb97769b7580.bindPopup(popup_fcb99667fff7afebb780d598a284ebc2)
+        ;
+
+        
+    
+    
+            marker_13d97aa324e217035f7dbb97769b7580.bindTooltip(
+                `<div>
+                     第1天 - 景点1: 侵华日军南京大屠杀遇难同胞纪念馆
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_13d97aa324e217035f7dbb97769b7580.setIcon(icon_439b441b9b024a8f2b634832d0019126);
+            
+    
+            var marker_08e6d832b87939a24075d687b32b58dc = L.marker(
+                [31.2667, 118.7917],
+                {
+}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var icon_fdd2de25034040192bd5b5831fd09671 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_709f93c7a5cb55cc340bb9bee47af1f9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3e4a3867a2284d4aefbdae59a4c80c66 = $(`<div id="html_3e4a3867a2284d4aefbdae59a4c80c66" style="width: 100.0%; height: 100.0%;"><b>夫子庙秦淮河风光带</b><br>夫子庙秦淮河风光带位于南京市秦淮区夫子庙，是南京著名的文化景点之一。夫子庙是为纪念孔子而建的庙宇，秦淮河则是南京的母亲河。这里不仅有古色古香的建筑群，还有丰富的商业和娱乐设施，夜晚灯光璀璨，景色迷人，是游客体验南京传统文化和现代生活的绝佳去处。<br><br>夫子庙秦淮河风光带是杭州著名的景点景点，夫子庙秦淮河风光带位于南京市秦淮区夫子庙，是南京著名的文化景点之一。夫子庙是为纪念孔子而建的庙宇，秦淮河则是南京的母亲河。这里不仅有古色古香的建筑群，还有丰富的商业和娱乐设施，夜晚灯光璀璨，景色迷人，是游客体验南京传统文化和现代生活的绝佳去处。。这里蕴含着丰富的历史街区, 水文化, 夜景等文化元素，是了解杭州历史文化的重要窗口。游览时可以深入体验当地特色，感受杭州的独特魅力。建议花费180分钟细细品味这里的文化底蕴。</div>`)[0];
+                popup_709f93c7a5cb55cc340bb9bee47af1f9.setContent(html_3e4a3867a2284d4aefbdae59a4c80c66);
+            
+        
+
+        marker_08e6d832b87939a24075d687b32b58dc.bindPopup(popup_709f93c7a5cb55cc340bb9bee47af1f9)
+        ;
+
+        
+    
+    
+            marker_08e6d832b87939a24075d687b32b58dc.bindTooltip(
+                `<div>
+                     第1天 - 景点2: 夫子庙秦淮河风光带
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_08e6d832b87939a24075d687b32b58dc.setIcon(icon_fdd2de25034040192bd5b5831fd09671);
+            
+    
+            var poly_line_d580f5fd43ae793ef69dc195695f944f = L.polyline(
+                [[31.2667, 118.7917], [31.2667, 118.7917]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": "5, 10", "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var marker_dc77474ef73fc1d8d6fba1532aa900d2 = L.marker(
+                [31.317, 118.802],
+                {
+}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var icon_cf922ba84cc3c45e5368a435f933d5ee = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_089214b856b2da9a9ab467d00d387697 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_55866e1c5a5078b7934f79b3bedea166 = $(`<div id="html_55866e1c5a5078b7934f79b3bedea166" style="width: 100.0%; height: 100.0%;"><b>紫霞湖</b><br>紫霞湖位于中山陵景区内，湖水清澈，周围环境幽静，是游客休憩和拍照的好去处。<br><br>紫霞湖是杭州著名的湖泊景点，紫霞湖位于中山陵景区内，湖水清澈，周围环境幽静，是游客休憩和拍照的好去处。。这里蕴含着丰富的湖泊, 自然景观, 中山陵等文化元素，是了解杭州历史文化的重要窗口。游览时可以深入体验当地特色，感受杭州的独特魅力。建议花费30分钟细细品味这里的文化底蕴。</div>`)[0];
+                popup_089214b856b2da9a9ab467d00d387697.setContent(html_55866e1c5a5078b7934f79b3bedea166);
+            
+        
+
+        marker_dc77474ef73fc1d8d6fba1532aa900d2.bindPopup(popup_089214b856b2da9a9ab467d00d387697)
+        ;
+
+        
+    
+    
+            marker_dc77474ef73fc1d8d6fba1532aa900d2.bindTooltip(
+                `<div>
+                     第1天 - 景点3: 紫霞湖
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_dc77474ef73fc1d8d6fba1532aa900d2.setIcon(icon_cf922ba84cc3c45e5368a435f933d5ee);
+            
+    
+            var poly_line_ba4bbb6c0ce36231358380a9f6f296d3 = L.polyline(
+                [[31.2667, 118.7917], [31.317, 118.802]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": "5, 10", "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var marker_b1f7a05ab8a7f3436faa9bbb295b61f7 = L.marker(
+                [31.273, 118.816],
+                {
+}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var icon_0480c35b64d0aee51920088a2dbdc1a6 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c1eac8c684b49e248e180d9a9d178201 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c1a32128478f01b90d695aa82494e996 = $(`<div id="html_c1a32128478f01b90d695aa82494e996" style="width: 100.0%; height: 100.0%;"><b>夫子庙步行街</b><br>夫子庙步行街是南京著名的美食街区，汇聚了各种地方特色小吃，夜晚灯火辉煌，热闹非凡。<br><br>夫子庙步行街是杭州著名的商业街景点，夫子庙步行街是南京著名的美食街区，汇聚了各种地方特色小吃，夜晚灯火辉煌，热闹非凡。。这里蕴含着丰富的美食街区, 夫子庙, 夜市等文化元素，是了解杭州历史文化的重要窗口。游览时可以深入体验当地特色，感受杭州的独特魅力。建议花费90分钟细细品味这里的文化底蕴。</div>`)[0];
+                popup_c1eac8c684b49e248e180d9a9d178201.setContent(html_c1a32128478f01b90d695aa82494e996);
+            
+        
+
+        marker_b1f7a05ab8a7f3436faa9bbb295b61f7.bindPopup(popup_c1eac8c684b49e248e180d9a9d178201)
+        ;
+
+        
+    
+    
+            marker_b1f7a05ab8a7f3436faa9bbb295b61f7.bindTooltip(
+                `<div>
+                     第2天 - 景点1: 夫子庙步行街
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_b1f7a05ab8a7f3436faa9bbb295b61f7.setIcon(icon_0480c35b64d0aee51920088a2dbdc1a6);
+            
+    
+            var marker_5ce877ff2f992297e3c8ee92610c54f6 = L.marker(
+                [31.273, 118.816],
+                {
+}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var icon_6d949e554f6bb9631d1c55504e5e7ea2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_35bc0d90fdff4f6d63dea040bf98d945 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6f9072ab17567fa5e1a19471de98248e = $(`<div id="html_6f9072ab17567fa5e1a19471de98248e" style="width: 100.0%; height: 100.0%;"><b>南京夫子庙小吃街</b><br>南京夫子庙小吃街是南京著名的美食街区，汇聚了各种地方特色小吃，夜晚灯火辉煌，热闹非凡。<br><br>南京夫子庙小吃街是杭州著名的美食街景点，南京夫子庙小吃街是南京著名的美食街区，汇聚了各种地方特色小吃，夜晚灯火辉煌，热闹非凡。。这里蕴含着丰富的美食街区, 夫子庙, 夜市等文化元素，是了解杭州历史文化的重要窗口。游览时可以深入体验当地特色，感受杭州的独特魅力。建议花费90分钟细细品味这里的文化底蕴。</div>`)[0];
+                popup_35bc0d90fdff4f6d63dea040bf98d945.setContent(html_6f9072ab17567fa5e1a19471de98248e);
+            
+        
+
+        marker_5ce877ff2f992297e3c8ee92610c54f6.bindPopup(popup_35bc0d90fdff4f6d63dea040bf98d945)
+        ;
+
+        
+    
+    
+            marker_5ce877ff2f992297e3c8ee92610c54f6.bindTooltip(
+                `<div>
+                     第2天 - 景点2: 南京夫子庙小吃街
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_5ce877ff2f992297e3c8ee92610c54f6.setIcon(icon_6d949e554f6bb9631d1c55504e5e7ea2);
+            
+    
+            var poly_line_3064f7af2e4d1bcc823c1f900fc35bf6 = L.polyline(
+                [[31.273, 118.816], [31.273, 118.816]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": "5, 10", "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var marker_1bc9b5bde6ad8959b5f97af23301bdf2 = L.marker(
+                [31.2667, 118.7917],
+                {
+}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var icon_dba10a14d2de5ff939ffac20214984b4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b0613057cf4b0aa3b568179b48380ace = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9377e1d7b38d3b8ade7c03a5a28cce28 = $(`<div id="html_9377e1d7b38d3b8ade7c03a5a28cce28" style="width: 100.0%; height: 100.0%;"><b>南京大屠杀纪念馆</b><br>南京大屠杀纪念馆位于南京市秦淮区中山路，是为了纪念1937年南京大屠杀事件而建立的纪念馆。纪念馆通过大量的文物、图片和资料，真实再现了南京大屠杀的惨烈历史，是进行爱国主义教育和和平教育的重要场所。<br><br>南京大屠杀纪念馆是杭州著名的纪念馆景点，南京大屠杀纪念馆位于南京市秦淮区中山路，是为了纪念1937年南京大屠杀事件而建立的纪念馆。纪念馆通过大量的文物、图片和资料，真实再现了南京大屠杀的惨烈历史，是进行爱国主义教育和和平教育的重要场所。。这里蕴含着丰富的历史纪念, 爱国主义, 战争遗迹等文化元素，是了解杭州历史文化的重要窗口。游览时可以深入体验当地特色，感受杭州的独特魅力。建议花费120分钟细细品味这里的文化底蕴。</div>`)[0];
+                popup_b0613057cf4b0aa3b568179b48380ace.setContent(html_9377e1d7b38d3b8ade7c03a5a28cce28);
+            
+        
+
+        marker_1bc9b5bde6ad8959b5f97af23301bdf2.bindPopup(popup_b0613057cf4b0aa3b568179b48380ace)
+        ;
+
+        
+    
+    
+            marker_1bc9b5bde6ad8959b5f97af23301bdf2.bindTooltip(
+                `<div>
+                     第2天 - 景点3: 南京大屠杀纪念馆
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_1bc9b5bde6ad8959b5f97af23301bdf2.setIcon(icon_dba10a14d2de5ff939ffac20214984b4);
+            
+    
+            var poly_line_2e6b6d3e5aa29b49a79044b5431f34aa = L.polyline(
+                [[31.273, 118.816], [31.2667, 118.7917]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": "5, 10", "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var marker_a9c8f7c0a8b5f54839e1ff97afdaf780 = L.marker(
+                [31.279, 118.813],
+                {
+}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+    
+            var icon_5b58ad7225da2a1f2befd41c06999436 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_520f8d87712f2d2efb6c25c402a0c514 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cc09b962bd41af513c2a2f59e6179802 = $(`<div id="html_cc09b962bd41af513c2a2f59e6179802" style="width: 100.0%; height: 100.0%;"><b>玄武湖公园</b><br>玄武湖公园是南京最大的城市公园，湖水清澈，周围绿树成荫，是市民休闲娱乐的好去处。<br><br>玄武湖公园是杭州著名的公园景点，玄武湖公园是南京最大的城市公园，湖水清澈，周围绿树成荫，是市民休闲娱乐的好去处。。这里蕴含着丰富的城市公园, 自然景观, 玄武湖等文化元素，是了解杭州历史文化的重要窗口。游览时可以深入体验当地特色，感受杭州的独特魅力。建议花费90分钟细细品味这里的文化底蕴。</div>`)[0];
+                popup_520f8d87712f2d2efb6c25c402a0c514.setContent(html_cc09b962bd41af513c2a2f59e6179802);
+            
+        
+
+        marker_a9c8f7c0a8b5f54839e1ff97afdaf780.bindPopup(popup_520f8d87712f2d2efb6c25c402a0c514)
+        ;
+
+        
+    
+    
+            marker_a9c8f7c0a8b5f54839e1ff97afdaf780.bindTooltip(
+                `<div>
+                     第2天 - 景点4: 玄武湖公园
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a9c8f7c0a8b5f54839e1ff97afdaf780.setIcon(icon_5b58ad7225da2a1f2befd41c06999436);
+            
+    
+            var poly_line_e9ea41cad83ea1c690729082f581a256 = L.polyline(
+                [[31.2667, 118.7917], [31.279, 118.813]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": "5, 10", "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_d3c33a66b327ddd879b7d9d425adad59);
+        
+</script>
+</html>

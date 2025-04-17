@@ -1,0 +1,563 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>杭州旅游知识图谱</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .flex-container {
+            display: flex;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        
+        .graph-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-panel {
+            width: 320px;
+            background-color: white;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .hover-effect {
+            pointer-events: none;
+        }
+        
+        .category-indicator {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .category-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .rating-stars {
+            color: #FFD700;
+            display: inline-flex;
+        }
+        
+        .empty-star {
+            color: #e0e0e0;
+        }
+        
+        .poi-image {
+            width: 100%;
+            height: 180px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .connected-poi {
+            cursor: pointer;
+            padding: 5px 0;
+            border-bottom: 1px dotted #eee;
+        }
+        
+        .connected-poi:hover {
+            color: #1976D2;
+            background-color: #f9f9f9;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .review {
+            padding: 8px;
+            margin-bottom: 8px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .review-title {
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        
+        .review-content {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .poi-detail {
+            margin-bottom: 20px;
+        }
+        
+        .poi-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 15px;
+            color: white;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .info-label {
+            width: 80px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .info-value {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-container">
+        <div class="graph-container">
+            <div class="controls">
+                <h5 class="mb-2">杭州旅游知识图谱</h5>
+                <div class="d-flex flex-column mb-2">
+                    <div class="text-muted small">缩放: <span id="zoom-level">100%</span></div>
+                    <div class="text-muted small">节点: <span id="node-count">0</span></div>
+                    <div class="text-muted small">连接: <span id="link-count">0</span></div>
+                </div>
+                <div id="categories-legend"></div>
+            </div>
+            <svg id="graph-svg"></svg>
+        </div>
+        
+        <div class="info-panel">
+            <div id="poi-info">
+                <div class="text-muted text-center py-5" id="default-message">
+                    <p>点击景点节点查看详细信息</p>
+                    <p>使用鼠标滚轮缩放</p>
+                    <p>拖动可平移视图</p>
+                    <p>悬停在节点上可查看连接关系</p>
+                </div>
+                <div id="hover-info" class="text-muted text-center py-5" style="display: none;">
+                    <p>悬停信息：<span id="hover-name"></span></p>
+                    <p>点击查看详细信息</p>
+                </div>
+                <div id="poi-details" style="display: none;">
+                    <!-- POI详细信息将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 当页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从后端获取数据
+            fetch('/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    renderGraph(data);
+                    updateCategoriesLegend(data.categories);
+                    updateCounters(data.nodes.length, data.links.length);
+                })
+                .catch(error => console.error('获取数据错误:', error));
+        });
+
+        // 渲染知识图谱
+        function renderGraph(data) {
+            const width = document.querySelector('.graph-container').clientWidth;
+            const height = document.querySelector('.graph-container').clientHeight;
+            
+            // 创建SVG
+            const svg = d3.select('#graph-svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', [0, 0, width, height]);
+            
+            // 添加缩放行为
+            const zoomBehavior = d3.zoom()
+                .scaleExtent([0.1, 3])
+                .on('zoom', (event) => {
+                    container.attr('transform', event.transform);
+                    updateZoomLevel(Math.round(event.transform.k * 100));
+                });
+            
+            svg.call(zoomBehavior);
+            
+            // 创建容器
+            const container = svg.append('g')
+                .attr('class', 'container');
+            
+            // 准备数据
+            const nodesById = {};
+            data.nodes.forEach(node => {
+                nodesById[node.id] = node;
+            });
+            
+            const links = data.links.map(link => ({
+                ...link,
+                source: nodesById[link.source],
+                target: nodesById[link.target]
+            }));
+            
+            // 创建力导向模拟
+            const simulation = d3.forceSimulation(data.nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collide', d3.forceCollide().radius(d => getNodeRadius(d) + 2));
+            
+            // 基于流行度确定节点半径
+            function getNodeRadius(node) {
+                return 10 + (node.popularity * 0.15);
+            }
+            
+            // 根据分类获取节点颜色
+            function getNodeColor(node) {
+                const category = data.categories.find(c => c.name === node.category);
+                return category ? category.color : '#999';
+            }
+            
+            // 绘制连线
+            const link = container.append('g')
+                .attr('class', 'links')
+                .selectAll('line')
+                .data(links)
+                .enter()
+                .append('line')
+                .attr('stroke', '#999')
+                .attr('stroke-opacity', 0.6)
+                .attr('stroke-width', d => Math.max(1, d.strength * 3));
+            
+            // 创建节点组
+            const node = container.append('g')
+                .attr('class', 'nodes')
+                .selectAll('.node')
+                .data(data.nodes)
+                .enter()
+                .append('g')
+                .attr('class', 'node')
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+            
+            // 添加圆形背景
+            node.append('circle')
+                .attr('r', getNodeRadius)
+                .attr('fill', getNodeColor)
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 1.5);
+            
+            // 添加悬停效果
+            node.append('circle')
+                .attr('class', 'hover-effect')
+                .attr('r', d => getNodeRadius(d) + 8)
+                .attr('fill', 'rgba(150, 150, 150, 0.2)')
+                .attr('stroke', '#666')
+                .attr('stroke-width', 0.5)
+                .style('opacity', 0);
+            
+            // 添加标签
+            node.append('text')
+                .text(d => d.name)
+                .attr('font-size', d => 10 + (d.popularity * 0.03))
+                .attr('dx', d => getNodeRadius(d) + 5)
+                .attr('dy', 4)
+                .attr('fill', '#333');
+            
+            // 节点交互
+            let selectedNode = null;
+            
+            node.on('mouseover', (event, d) => {
+                // 只显示悬停效果，不改变预览面板
+                d3.select(event.currentTarget).select('.hover-effect').style('opacity', 1);
+                
+                // 高亮连接
+                link.attr('stroke', l => (l.source.id === d.id || l.target.id === d.id) ? '#000' : '#999')
+                    .attr('stroke-opacity', l => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.2)
+                    .attr('stroke-width', l => (l.source.id === d.id || l.target.id === d.id) ? Math.max(2, l.strength * 4) : Math.max(1, l.strength * 3));
+                
+                // 高亮连接的节点
+                node.select('circle').attr('stroke-width', n => 
+                    links.some(l => (l.source.id === d.id && l.target.id === n.id) || (l.source.id === n.id && l.target.id === d.id)) ? 3 : 1.5
+                );
+            })
+            .on('mouseout', (event, d) => {
+                // 只隐藏悬停效果，不影响预览面板
+                d3.select(event.currentTarget).select('.hover-effect').style('opacity', 0);
+                
+                // 如果没有选中节点，则重置高亮
+                if (!selectedNode) {
+                    link.attr('stroke', '#999')
+                        .attr('stroke-opacity', 0.6)
+                        .attr('stroke-width', d => Math.max(1, d.strength * 3));
+                    
+                    node.select('circle').attr('stroke-width', 1.5);
+                }
+            })
+            .on('click', (event, d) => {
+                // 点击时更新选中节点和预览面板
+                selectedNode = d;
+                showPoiDetails(d, data);
+                
+                // 根据选择更新视觉状态
+                node.select('circle').attr('stroke-width', n => n.id === d.id ? 3 : 1.5);
+                
+                // 高亮选中节点的连接
+                link.attr('stroke', l => (l.source.id === d.id || l.target.id === d.id) ? '#000' : '#999')
+                    .attr('stroke-opacity', l => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.2)
+                    .attr('stroke-width', l => (l.source.id === d.id || l.target.id === d.id) ? Math.max(2, l.strength * 4) : Math.max(1, l.strength * 3));
+            });
+            
+            // 更新位置
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+                
+                node.attr('transform', d => `translate(${d.x}, ${d.y})`);
+            });
+            
+            // 拖动函数
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+        
+        // 显示POI悬停信息
+        function showHoverInfo(poi) {
+            document.getElementById('default-message').style.display = 'none';
+            document.getElementById('poi-details').style.display = 'none';
+            
+            const hoverInfo = document.getElementById('hover-info');
+            document.getElementById('hover-name').textContent = poi.name;
+            hoverInfo.style.display = 'block';
+        }
+        
+        // 隐藏悬停信息
+        function hideHoverInfo() {
+            const hoverInfo = document.getElementById('hover-info');
+            hoverInfo.style.display = 'none';
+            
+            if (document.getElementById('poi-details').style.display === 'none') {
+                document.getElementById('default-message').style.display = 'block';
+            }
+        }
+        
+        // 显示POI详细信息
+        function showPoiDetails(poi, data) {
+            document.getElementById('default-message').style.display = 'none';
+            document.getElementById('hover-info').style.display = 'none';
+            
+            const poiDetails = document.getElementById('poi-details');
+            poiDetails.style.display = 'block';
+            
+            // 获取分类信息
+            const category = data.categories.find(c => c.name === poi.category);
+            
+            // 生成评分星星
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(poi.rating)) {
+                    starsHtml += '<span>★</span>';
+                } else if (i - 0.5 <= poi.rating) {
+                    starsHtml += '<span>★</span>';
+                } else {
+                    starsHtml += '<span class="empty-star">★</span>';
+                }
+            }
+            
+            // 获取连接的POI
+            const connectedPois = data.links
+                .filter(link => link.source.id === poi.id || link.target.id === poi.id)
+                .map(link => link.source.id === poi.id ? link.target : link.source);
+            
+            // 创建连接POI列表
+            let connectedPoisHtml = '';
+            connectedPois.forEach(connectedPoi => {
+                const connectedCategory = data.categories.find(c => c.name === connectedPoi.category);
+                connectedPoisHtml += `
+                    <div class="connected-poi" onclick="showPoiDetails(${JSON.stringify(connectedPoi).replace(/"/g, '&quot;')}, ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                        • ${connectedPoi.name} 
+                        <small style="color: ${connectedCategory.color};">(${connectedPoi.category})</small>
+                    </div>
+                `;
+            });
+            
+            // 生成HTML
+            poiDetails.innerHTML = `
+                <div class="poi-detail">
+                    <div class="poi-name">${poi.name}</div>
+                    
+                    <div class="category-badge" style="background-color: ${category.color}">
+                        ${poi.category}
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rating-stars me-2">
+                            ${starsHtml}
+                        </div>
+                        <span class="small">${poi.rating} (${poi.reviews} 条评价)</span>
+                    </div>
+                    
+                    <div class="poi-image">
+                        <img src="${poi.image}" alt="${poi.name}" class="img-fluid">
+                    </div>
+                    
+                    <p class="mb-4">${poi.description}</p>
+                    
+                    <div class="info-row">
+                        <div class="info-label">地址：</div>
+                        <div class="info-value">${poi.address}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">开放时间：</div>
+                        <div class="info-value">${poi.opening_hours}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">门票：</div>
+                        <div class="info-value">${poi.ticket_price}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">最佳季节：</div>
+                        <div class="info-value">${poi.best_season}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">交通：</div>
+                        <div class="info-value">${poi.transportation}</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">小贴士：</div>
+                        <div class="info-value">${poi.tips}</div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="section-title">历史意义：</div>
+                        <p class="small text-muted">${poi.historical_significance}</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="section-title">收录年份：</div>
+                        <p class="small">${poi.year}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="section-title">连接的景点：</div>
+                    <div class="connected-pois">
+                        ${connectedPoisHtml || '<div class="text-muted small">无连接景点</div>'}
+                    </div>
+                </div>
+                
+                <div class="mt-4 mb-4">
+                    <div class="section-title">用户评价：</div>
+                    <div class="reviews">
+                        <div class="review">
+                            <div class="review-title">美丽的地方！</div>
+                            <p class="review-content">这个地方太棒了，喜欢这里的氛围和风景。到杭州一定要来。</p>
+                        </div>
+                        <div class="review">
+                            <div class="review-title">很值得一游</div>
+                            <p class="review-content">景点维护得很好，有很重要的历史意义。强烈推荐！</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 隐藏POI详细信息
+        function hidePoiDetails() {
+            document.getElementById('poi-details').style.display = 'none';
+            document.getElementById('default-message').style.display = 'block';
+        }
+        
+        // 更新分类图例
+        function updateCategoriesLegend(categories) {
+            const legend = document.getElementById('categories-legend');
+            categories.forEach(category => {
+                const item = document.createElement('div');
+                item.className = 'category-indicator';
+                item.innerHTML = `
+                    <div class="category-color" style="background-color: ${category.color}"></div>
+                    <span class="small">${category.name}</span>
+                `;
+                legend.appendChild(item);
+            });
+        }
+        
+        // 更新计数器
+        function updateCounters(nodeCount, linkCount) {
+            document.getElementById('node-count').textContent = nodeCount;
+            document.getElementById('link-count').textContent = linkCount;
+        }
+        
+        // 更新缩放级别
+        function updateZoomLevel(level) {
+            document.getElementById('zoom-level').textContent = level + '%';
+        }
+    </script>
+</body>
+</html>

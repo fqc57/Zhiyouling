@@ -1,0 +1,231 @@
+/* static/css/style.css */
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft YaHei", "SimHei", sans-serif;
+    height: 100%;
+    overflow: hidden;
+}
+
+.flex-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.graph-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.info-panel {
+    width: 320px;
+    background-color: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 节点样式 */
+.node {
+    cursor: pointer;
+}
+
+.hover-effect {
+    pointer-events: none;
+}
+
+/* 类别指示器 */
+.category-indicator {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.category-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+/* 评分星星 */
+.rating-stars {
+    color: #FFD700;
+    display: inline-flex;
+}
+
+.empty-star {
+    color: #e0e0e0;
+}
+
+/* POI详情面板 */
+.poi-image {
+    width: 100%;
+    height: 180px;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.poi-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.connected-poi {
+    cursor: pointer;
+    padding: 5px 0;
+    border-bottom: 1px dotted #eee;
+    transition: all 0.2s ease;
+}
+
+.connected-poi:hover {
+    color: #1976D2;
+    background-color: #f9f9f9;
+    padding-left: 5px;
+}
+
+.section-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #555;
+    border-left: 3px solid #2c7bb6;
+    padding-left: 8px;
+}
+
+.review {
+    padding: 8px;
+    margin-bottom: 8px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border-left: 2px solid #ddd;
+}
+
+.review-title {
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+
+.review-content {
+    font-size: 13px;
+    color: #666;
+}
+
+.poi-detail {
+    margin-bottom: 20px;
+}
+
+.poi-name {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 15px;
+    color: white;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.info-label {
+    width: 80px;
+    font-weight: 500;
+    color: #666;
+}
+
+.info-value {
+    flex: 1;
+    color: #333;
+}
+
+/* 动画效果 */
+.node circle {
+    transition: all 0.3s ease;
+}
+
+.node text {
+    transition: all 0.3s ease;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .flex-container {
+        flex-direction: column;
+    }
+    
+    .info-panel {
+        width: 100%;
+        height: 40%;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .graph-container {
+        height: 60%;
+    }
+}
+
+/* 工具提示 */
+.tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 1000;
+}
+
+/* 加载指示器 */
+.loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.loading-spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
