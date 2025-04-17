@@ -99,7 +99,7 @@ python app_integrated.py
 
 查看系统演示视频，了解智游灵的核心功能和使用方法：
 
-<video src="https://github.com/fqc57/Zhiyouling/releases/download/v1.0/example.mov" controls width="600"></video>
+https://github.com/user-attachments/assets/62f36f35-46f0-4371-bedc-46b871c917fd
 
 ## 👥 贡献者
 
